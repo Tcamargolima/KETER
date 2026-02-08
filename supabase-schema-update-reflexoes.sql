@@ -27,12 +27,12 @@ COMMENT ON COLUMN reflexoes_noturnas.padrao_observado IS 'Padrões repetitivos d
 COMMENT ON COLUMN reflexoes_noturnas.impacto_outros IS 'Impacto das ações em outros (Fase 3)';
 
 -- Atualizar a função de incremento de reflexões (se não existir)
-CREATE OR REPLACE FUNCTION increment_reflexoes(user_id UUID)
+CREATE OR REPLACE FUNCTION increment_reflexoes(p_user_id UUID)
 RETURNS void AS $$
 BEGIN
   UPDATE keteros
   SET total_reflexoes = total_reflexoes + 1
-  WHERE id = user_id;
+  WHERE id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

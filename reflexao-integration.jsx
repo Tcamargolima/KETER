@@ -129,7 +129,8 @@ export const useReflexaoNoturna = (userId, faseAtual) => {
           palavras_chave: palavrasChave,
           sentimento_detectado: sentimentoDetectado
         }], {
-          onConflict: 'ketero_id,data'
+          onConflict: 'ketero_id,data',
+          ignoreDuplicates: false
         })
         .select()
         .single();
@@ -225,7 +226,7 @@ export const NotificacaoReflexao = ({ onAbrir, onFechar, mostrar }) => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes slide-in {
           from {
             transform: translateX(100%);
@@ -328,6 +329,16 @@ const AnaliseIAModal = ({ analise, onFechar }) => {
 // ================================================
 // HELPER: Analisar Reflexão com IA
 // ================================================
+// ⚠️ SECURITY WARNING: This function exposes the OpenAI API key in the browser
+// This is acceptable ONLY for development/prototyping
+// 
+// TODO FOR PRODUCTION:
+// 1. Move this to a Supabase Edge Function or serverless backend
+// 2. Use environment variables on the server side
+// 3. Implement rate limiting per user
+// 4. Add authentication checks
+// 
+// See SETUP-REFLEXAO-NOTURNA.md for migration guide to Edge Functions
 
 export const analisarReflexaoComIA = async (textoReflexao, faseAtual) => {
   try {

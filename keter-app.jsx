@@ -1006,7 +1006,7 @@ export default function KeterApp() {
               fase={userStats.faseAtual}
               userId={user.id}
               onFechar={() => reflexaoHook.setMostrarModal(false)}
-              onSalvar={(respostas) => reflexaoHook.salvarReflexao(respostas.respostas)}
+              onSalvar={(reflexaoData) => reflexaoHook.salvarReflexao(reflexaoData.respostas)}
             />
           )}
         </>
