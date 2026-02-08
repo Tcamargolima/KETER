@@ -86,6 +86,7 @@ BEGIN
   END IF;
 
   -- Verificar se as últimas reflexões são consecutivas
+  -- Para ordem DESC: data_anterior (mais recente) - data (mais antiga) = 1
   SELECT COUNT(*) = p_quantidade INTO consecutivo
   FROM (
     SELECT data, 
@@ -96,7 +97,7 @@ BEGIN
     LIMIT p_quantidade
   ) sub
   WHERE data_anterior IS NULL 
-     OR data_anterior - data = 1;  -- Fixed: correct order for DESC sorting
+     OR data_anterior - data = 1;  -- For DESC order: newer - older = 1
 
   RETURN consecutivo;
 END;

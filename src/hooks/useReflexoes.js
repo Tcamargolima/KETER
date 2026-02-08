@@ -259,8 +259,9 @@ export const useReflexoes = (userId) => {
       const diff = Math.abs(datas[i] - datas[i + 1]);
       const diasDiff = diff / (1000 * 60 * 60 * 24);
       
-      // Verificar se a diferença está próxima de 1 dia (considerando variações de horário)
-      if (Math.round(diasDiff) !== 1) return false;
+      // Verificar se a diferença está próxima de 1 dia (threshold: 0.9 a 1.1)
+      // Isso lida com variações de horário e fusos horários
+      if (diasDiff < 0.9 || diasDiff > 1.1) return false;
     }
 
     return true;
