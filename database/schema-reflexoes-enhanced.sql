@@ -96,7 +96,7 @@ BEGIN
     LIMIT p_quantidade
   ) sub
   WHERE data_anterior IS NULL 
-     OR data - data_anterior = 1;
+     OR data_anterior - data = 1;  -- Fixed: correct order for DESC sorting
 
   RETURN consecutivo;
 END;

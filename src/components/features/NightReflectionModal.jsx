@@ -313,7 +313,7 @@ export const NightReflectionModal = ({ onSave, onClose, userId }) => {
               className="px-8 py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-amber-500/50 transition-all flex items-center gap-2"
             >
               <Save className="w-5 h-5" />
-              Iniciar Reflexão
+              Salvar Reflexão
             </button>
           )}
         </div>

@@ -259,8 +259,8 @@ export const useReflexoes = (userId) => {
       const diff = Math.abs(datas[i] - datas[i + 1]);
       const diasDiff = diff / (1000 * 60 * 60 * 24);
       
-      // Se a diferença não for exatamente 1 dia, não é consecutivo
-      if (diasDiff !== 1) return false;
+      // Verificar se a diferença está próxima de 1 dia (considerando variações de horário)
+      if (Math.round(diasDiff) !== 1) return false;
     }
 
     return true;

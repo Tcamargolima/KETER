@@ -3,12 +3,23 @@
 // ================================================
 // src/lib/openai.js
 
+// ⚠️ SECURITY WARNING: OpenAI API key is exposed in browser
+// This is acceptable ONLY for development/prototyping
+// 
+// TODO FOR PRODUCTION:
+// 1. Move all OpenAI calls to Supabase Edge Functions
+// 2. Use environment variables on the server side only
+// 3. Implement rate limiting per user
+// 4. Add authentication checks
+// 
+// See docs/GUIA-INTEGRACAO-REFLEXOES.md for migration guide
+
 import OpenAI from 'openai';
 
 // Configuração do OpenAI
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Apenas para desenvolvimento - mover para backend em produção
+  dangerouslyAllowBrowser: true // Remove this in production!
 });
 
 // ================================================
