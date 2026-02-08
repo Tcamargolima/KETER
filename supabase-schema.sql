@@ -148,6 +148,7 @@ CREATE TABLE IF NOT EXISTS micro_atos (
   tipo VARCHAR(100),
   descricao TEXT,
   executado BOOLEAN DEFAULT false,
+  impacto_estimado VARCHAR(20) DEFAULT 'médio',
   reflexao_pos TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   executado_at TIMESTAMP WITH TIME ZONE

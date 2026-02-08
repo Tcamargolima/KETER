@@ -6,6 +6,8 @@
 import React, { useState } from 'react';
 import { User, Heart, Trophy, Moon, TrendingUp, Calendar, Settings } from 'lucide-react';
 import { ReflexoesTimeline } from '../../components/features/ReflexoesTimeline';
+import { MicroAtosStatistics } from '../../components/features/MicroAtosStatistics';
+import { KindnessTree } from '../../components/features/KindnessTree';
 import { useReflexoes } from '../../hooks/useReflexoes';
 
 export const Perfil = ({ user, userStats }) => {
@@ -14,6 +16,7 @@ export const Perfil = ({ user, userStats }) => {
 
   const abas = [
     { id: 'visao-geral', label: 'Visão Geral', icon: User },
+    { id: 'micro-atos', label: 'Micro-atos', icon: Heart },
     { id: 'reflexoes', label: 'Reflexões', icon: Moon },
     { id: 'conquistas', label: 'Conquistas', icon: Trophy },
     { id: 'configuracoes', label: 'Configurações', icon: Settings },
@@ -96,10 +99,35 @@ export const Perfil = ({ user, userStats }) => {
         {/* Conteúdo das abas */}
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700">
           {abaAtiva === 'visao-geral' && <VisaoGeral userStats={userStats} />}
+          {abaAtiva === 'micro-atos' && <MicroAtosTab userId={user?.id} userStats={userStats} />}
           {abaAtiva === 'reflexoes' && <ReflexoesTab historicoReflexoes={historicoReflexoes} />}
           {abaAtiva === 'conquistas' && <ConquistasTab userId={user?.id} />}
           {abaAtiva === 'configuracoes' && <ConfiguracoesTab user={user} />}
         </div>
+      </div>
+    </div>
+  );
+};
+
+// ================================================
+// ABA: Micro-atos
+// ================================================
+const MicroAtosTab = ({ userId, userStats }) => {
+  return (
+    <div className="space-y-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">Micro-atos de Bondade</h2>
+        <p className="text-slate-400">
+          Seu impacto no mundo através de pequenos atos de bondade
+        </p>
+      </div>
+
+      {/* Árvore da Bondade */}
+      <KindnessTree totalMicroAtos={userStats?.total_micro_atos || 0} />
+
+      {/* Estatísticas Detalhadas */}
+      <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
+        <MicroAtosStatistics userId={userId} />
       </div>
     </div>
   );
