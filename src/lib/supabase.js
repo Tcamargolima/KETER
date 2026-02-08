@@ -465,6 +465,97 @@ export const getHistoricoConversas = async (userId, limite = 50) => {
 };
 
 // ================================================
+// PRÁTICAS HELPERS
+// ================================================
+
+/**
+ * Obter todas as práticas
+ */
+export const getPraticas = async (filtros = {}) => {
+  try {
+    let query = supabase
+      .from('praticas')
+      .select('*')
+      .order('fase', { ascending: true })
+      .order('ordem', { ascending: true });
+
+    // Aplicar filtros opcionais
+    if (filtros.fase) {
+      query = query.eq('fase', filtros.fase);
+    }
+    if (filtros.categoria) {
+      query = query.eq('categoria', filtros.categoria);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao obter práticas:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Obter prática por ID
+ */
+export const getPraticaById = async (praticaId) => {
+  try {
+    const { data, error } = await supabase
+      .from('praticas')
+      .select('*')
+      .eq('id', praticaId)
+      .single();
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao obter prática:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Obter práticas de uma fase específica
+ */
+export const getPraticasByFase = async (fase) => {
+  try {
+    const { data, error } = await supabase
+      .from('praticas')
+      .select('*')
+      .eq('fase', fase)
+      .order('ordem', { ascending: true });
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao obter práticas da fase:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Obter histórico de práticas completadas pelo usuário
+ */
+export const getHistoricoPraticas = async (userId, limite = 30) => {
+  try {
+    const { data, error } = await supabase
+      .from('praticas_diarias')
+      .select('*')
+      .eq('ketero_id', userId)
+      .eq('completada', true)
+      .order('completed_at', { ascending: false })
+      .limit(limite);
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao obter histórico de práticas:', error);
+    return { data: null, error };
+  }
+};
+
+// ================================================
 // REALTIME SUBSCRIPTIONS
 // ================================================
 
