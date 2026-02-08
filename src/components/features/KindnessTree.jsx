@@ -90,11 +90,13 @@ export const KindnessTree = ({ totalMicroAtos = 0 }) => {
         </p>
 
         {/* Counter */}
-        <div className="flex items-center gap-2 bg-white rounded-full px-6 py-3 shadow-md">
-          <TreeDeciduous className="text-green-600" size={20} />
-          <span className="text-2xl font-bold text-gray-900">{totalMicroAtos}</span>
-          <span className="text-gray-600">atos realizados</span>
-        </div>
+        <section aria-label="Contador de micro-atos realizados">
+          <div className="flex items-center gap-2 bg-white rounded-full px-6 py-3 shadow-md">
+            <TreeDeciduous className="text-green-600" size={20} />
+            <span className="text-2xl font-bold text-gray-900" aria-live="polite">{totalMicroAtos}</span>
+            <span className="text-gray-600">atos realizados</span>
+          </div>
+        </section>
       </div>
 
       {/* Progress to Next Stage */}
@@ -108,7 +110,14 @@ export const KindnessTree = ({ totalMicroAtos = 0 }) => {
               {totalMicroAtos} / {nextMilestone}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
+          <div 
+            role="progressbar"
+            aria-label="Progresso para o próximo estágio da árvore"
+            aria-valuenow={totalMicroAtos}
+            aria-valuemin="0"
+            aria-valuemax={nextMilestone}
+            className="w-full bg-gray-200 rounded-full h-3"
+          >
             <div
               className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-500"
               style={{ width: `${progressToNext}%` }}
