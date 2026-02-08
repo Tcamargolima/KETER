@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Brain, Heart, Users, TrendingUp, Clock, Sparkles, Target, Sunrise, Lock, Trophy, Flame, BookOpen, Send, Menu, X, ChevronRight, Play, Pause, RotateCcw, Check, Star, Zap } from 'lucide-react';
+import { useReflexaoNoturna, NotificacaoReflexao, ReflexaoWrapper } from './reflexao-integration';
 
 // ==================== CONSTANTS & DATA ====================
 const FASES = [
@@ -157,6 +158,9 @@ export default function KeterApp() {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [showConquista, setShowConquista] = useState(null);
+
+  // Sistema de Reflexão Noturna
+  const reflexaoHook = useReflexaoNoturna(user?.id, userStats.faseAtual);
 
   // Load user data on mount
   useEffect(() => {
@@ -538,6 +542,41 @@ export default function KeterApp() {
                 <div>
                   <p className="text-orange-200 font-bold text-xl">{userStats.sequencia} dias de sequência!</p>
                   <p className="text-orange-300/80 text-sm">Continue assim para manter o fogo aceso</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Reflexão Noturna Reminder */}
+          {!reflexaoHook.jaFezReflexaoHoje && (
+            <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-4 border border-purple-500/30">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                    <span className="text-2xl">🌙</span>
+                  </div>
+                  <div>
+                    <p className="text-purple-200 font-bold">Reflexão Noturna</p>
+                    <p className="text-purple-300/80 text-sm">Reserve 5 min para refletir sobre seu dia</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => reflexaoHook.setMostrarModal(true)}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-semibold rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all whitespace-nowrap"
+                >
+                  Fazer Agora
+                </button>
+              </div>
+            </div>
+          )}
+
+          {reflexaoHook.jaFezReflexaoHoje && (
+            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-xl rounded-2xl p-4 border border-green-500/30">
+              <div className="flex items-center gap-3">
+                <Check className="w-8 h-8 text-green-400" />
+                <div>
+                  <p className="text-green-200 font-bold">Reflexão Completa! ✨</p>
+                  <p className="text-green-300/80 text-sm">Você já refletiu sobre seu dia hoje</p>
                 </div>
               </div>
             </div>
@@ -952,6 +991,26 @@ export default function KeterApp() {
       {currentView === 'guia' && <GuiaView />}
       {currentView === 'perfil' && <PerfilView />}
       <ConquistaModal />
+
+      {/* Sistema de Reflexão Noturna */}
+      {user && (
+        <>
+          <NotificacaoReflexao
+            mostrar={reflexaoHook.mostrarNotificacao && !reflexaoHook.mostrarModal}
+            onAbrir={() => reflexaoHook.setMostrarModal(true)}
+            onFechar={() => reflexaoHook.setMostrarNotificacao(false)}
+          />
+          
+          {reflexaoHook.mostrarModal && (
+            <ReflexaoWrapper
+              fase={userStats.faseAtual}
+              userId={user.id}
+              onFechar={() => reflexaoHook.setMostrarModal(false)}
+              onSalvar={(reflexaoData) => reflexaoHook.salvarReflexao(reflexaoData.respostas)}
+            />
+          )}
+        </>
+      )}
 
       <style jsx>{`
         @keyframes fade-in {
