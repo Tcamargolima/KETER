@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Calendar, Clock, TrendingUp, BookOpen, Play, ChevronRight } from 'lucide-react';
 import { usePraticas } from '../../hooks/usePraticas';
+import { MicroAtosCard } from '../../components/features/MicroAtosCard';
 
 /**
  * Componente Home - Dashboard Principal
@@ -173,6 +174,11 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
           </div>
         </div>
       )}
+
+      {/* Micro-ato do Dia */}
+      <div className="mb-8">
+        <MicroAtosCard userId={userId} />
+      </div>
 
       {/* Link para Biblioteca */}
       <div className="bg-white rounded-xl shadow-md p-6">
