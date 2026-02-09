@@ -10,6 +10,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, subDays } from 'date-fns';
+import { isValidUUID } from '../lib/utils';
 
 export const useEvolutionData = (userId, daysRange = 90) => {
   const [reflexoes, setReflexoes] = useState([]);
@@ -23,6 +24,14 @@ export const useEvolutionData = (userId, daysRange = 90) => {
   // ================================================
   useEffect(() => {
     if (!userId) {
+      setCarregando(false);
+      return;
+    }
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em useEvolutionData:', userId);
+      setErro('ID de usuário inválido');
       setCarregando(false);
       return;
     }

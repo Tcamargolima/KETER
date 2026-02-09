@@ -9,6 +9,7 @@
 // - Sistema de conquistas
 
 import { useState, useEffect } from 'react';
+import { isValidUUID } from '../lib/utils';
 
 export const useReflexoes = (userId) => {
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -24,6 +25,12 @@ export const useReflexoes = (userId) => {
   // ================================================
   useEffect(() => {
     if (!userId) return;
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em useReflexoes:', userId);
+      return;
+    }
 
     const verificarReflexaoHoje = async () => {
       try {
@@ -83,6 +90,12 @@ export const useReflexoes = (userId) => {
   useEffect(() => {
     if (!userId) return;
 
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em carregar histórico:', userId);
+      return;
+    }
+
     const carregarHistorico = async () => {
       try {
         const { default: supabase } = await import('../lib/supabase');
@@ -111,6 +124,12 @@ export const useReflexoes = (userId) => {
   const salvarReflexao = async (reflexaoData) => {
     if (!userId) {
       return { success: false, error: 'Usuário não autenticado' };
+    }
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em salvarReflexao:', userId);
+      return { success: false, error: 'ID de usuário inválido' };
     }
 
     setCarregando(true);

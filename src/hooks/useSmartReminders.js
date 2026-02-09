@@ -9,6 +9,7 @@
 
 import { useEffect, useCallback, useRef } from 'react';
 import { supabase, createNotification } from '../lib/supabase';
+import { isValidUUID } from '../lib/utils';
 
 /**
  * Hook para gerenciar lembretes inteligentes
@@ -28,6 +29,12 @@ export const useSmartReminders = (userId, userProfile, onNotificationCreated) =>
   // ================================================
   const checkMorningReminder = useCallback(async () => {
     if (!userId || !userProfile) return;
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em useSmartReminders:', userId);
+      return;
+    }
 
     const now = new Date();
     const hour = now.getHours();

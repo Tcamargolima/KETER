@@ -10,6 +10,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { isValidUUID } from '../lib/utils';
 
 export const useCirculos = (userId) => {
   const [circulos, setCirculos] = useState([]);
@@ -22,6 +23,14 @@ export const useCirculos = (userId) => {
    */
   const carregarCirculos = useCallback(async () => {
     if (!userId) return;
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em useCirculos:', userId);
+      setError('ID de usuário inválido');
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);

@@ -10,6 +10,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { recomendarMicroAtoPorFase, getMicroAtosPorCategoria, getCategorias } from '../data/microAtosLibrary';
+import { isValidUUID } from '../lib/utils';
 
 export const useMicroAtos = (userId) => {
   const [microAtoAtual, setMicroAtoAtual] = useState(null);
@@ -24,6 +25,14 @@ export const useMicroAtos = (userId) => {
   // ================================================
   useEffect(() => {
     if (!userId) {
+      setCarregando(false);
+      return;
+    }
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em useMicroAtos:', userId);
+      setErro('ID de usuário inválido');
       setCarregando(false);
       return;
     }
