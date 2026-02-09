@@ -3,8 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home';
 import Notifications from './pages/Notifications';
 import Perfil from './pages/Perfil';
-import Circulos from './pages/Circulos';
-import { ChatRoom } from './components/features/ChatRoom';
+import Sabedoria from './pages/Sabedoria';
 import { OfflineIndicator } from './components/features/OfflineIndicator';
 import { useOffline } from './hooks/useOffline';
 import { usePWAInstall } from './hooks/usePWAInstall';
@@ -67,8 +66,7 @@ function App() {
           />
           <Route path="/notifications" element={<Notifications userId={userId} />} />
           <Route path="/perfil" element={<Perfil userId={userId} />} />
-          <Route path="/circulos" element={<Circulos userId={userId} />} />
-          <Route path="/circulos/:id" element={<ChatRoom userId={userId} />} />
+          <Route path="/sabedoria" element={<Sabedoria userId={userId} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
