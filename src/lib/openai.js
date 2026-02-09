@@ -650,6 +650,60 @@ const detectarSentimentoBasico = (texto) => {
 };
 
 // ================================================
+// PHASE TRANSITION MESSAGE
+// ================================================
+
+/**
+ * Gerar mensagem celebratória para transição de fase
+ */
+export const generatePhaseTransitionMessage = async (nomeUsuario, faseNova, transicao) => {
+  try {
+    const faseAnterior = getFaseNome(transicao.fase_anterior);
+    
+    const prompt = `Crie uma mensagem celebratória poética e motivadora para ${nomeUsuario} que acaba de completar a fase ${faseAnterior} e está avançando para a fase ${faseNova}.
+
+DADOS DA JORNADA:
+- Dias na fase anterior: ${transicao.dias_na_fase || 0}
+- Práticas completadas: ${transicao.praticas_completadas || 0}
+- Reflexões feitas: ${transicao.reflexoes_feitas || 0}
+- Sequência máxima: ${transicao.sequencia_maxima_alcancada || 0} dias
+
+A mensagem deve:
+1. Celebrar a conquista de forma genuína e emocional
+2. Destacar a evolução espiritual e o crescimento pessoal
+3. Reconhecer o esforço e dedicação demonstrados
+4. Inspirar confiança para o próximo passo da jornada
+5. Usar linguagem poética mas acessível
+6. Ser concisa (máximo 3 parágrafos)
+7. Terminar com uma frase inspiradora sobre a fase ${faseNova}
+
+Não use clichês motivacionais genéricos. Seja autêntico e espiritual.`;
+
+    const completion = await openai.chat.completions.create({
+      model: MODELS.CHAT, // GPT-4 para mensagem de alta qualidade
+      messages: [
+        {
+          role: 'system',
+          content: 'Você é o Guia Keter, um mentor espiritual sábio que celebra conquistas de forma poética e significativa.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      max_tokens: MAX_TOKENS.FEEDBACK,
+      temperature: 0.8, // Mais criatividade para mensagem poética
+    });
+
+    return completion.choices[0].message.content;
+  } catch (error) {
+    console.error('Erro ao gerar mensagem de transição:', error);
+    // Mensagem padrão em caso de erro
+    return `${nomeUsuario}, sua jornada floresce! 🌸\n\nVocê completou a fase ${getFaseNome(transicao.fase_anterior)} com dedicação e coragem. Cada prática, cada reflexão, cada dia foi uma semente plantada no jardim da sua evolução.\n\nAgora, ao entrar na fase ${faseNova}, você carrega a sabedoria conquistada e abre-se para novos horizontes. Continue sua jornada com o coração aberto e a mente presente. ✨`;
+  }
+};
+
+// ================================================
 // EXPORTS
 // ================================================
 
@@ -660,6 +714,7 @@ export default {
   detectarCrise,
   recomendarPratica,
   analisarReflexao,
+  generatePhaseTransitionMessage,
   estimarCusto,
   getCached,
   setCache
