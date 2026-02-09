@@ -46,19 +46,22 @@ const ContentDetailModal = ({
         onRegistrarVisualizacao(conteudo.id, 0, false);
       }
     }
-
-    return () => {
-      // Ao fechar, calcular tempo e registrar
-      if (tempoInicio && conteudo && onRegistrarVisualizacao) {
-        const tempoDecorrido = Math.floor((Date.now() - tempoInicio) / 60000); // em minutos
-        onRegistrarVisualizacao(conteudo.id, tempoDecorrido, videoWatched);
-      }
-    };
   }, [isOpen, conteudo?.id]);
 
   // ================================================
   // HANDLERS
   // ================================================
+  const handleClose = () => {
+    // Calcular tempo e registrar visualização ao fechar
+    if (tempoInicio && conteudo && onRegistrarVisualizacao) {
+      const tempoDecorrido = Math.floor((Date.now() - tempoInicio) / 60000); // em minutos
+      onRegistrarVisualizacao(conteudo.id, tempoDecorrido, videoWatched);
+    }
+    setTempoInicio(null);
+    setVideoWatched(false);
+    onClose();
+  };
+
   const handleMarcarCompleto = () => {
     if (onAtualizarProgresso) {
       onAtualizarProgresso(conteudo.id, 100);
@@ -120,7 +123,7 @@ const ContentDetailModal = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-            onClick={onClose}
+            onClick={handleClose}
           />
 
           {/* Modal */}
@@ -136,7 +139,7 @@ const ContentDetailModal = ({
               <div className={`bg-gradient-to-r ${getFaseColor(conteudo.fase)} p-6 text-white relative`}>
                 {/* Botão Fechar */}
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
                 >
                   <X size={24} />

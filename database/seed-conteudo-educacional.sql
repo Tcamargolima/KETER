@@ -272,6 +272,16 @@ VALUES (
 -- ================================================
 -- ÁUDIOS (Simulado - URLs de exemplo)
 -- ================================================
+-- IMPORTANTE: Estas URLs são placeholders. Para usar áudios reais:
+-- 1. Faça upload dos arquivos de áudio para Supabase Storage:
+--    - Navegue para Storage no Supabase Dashboard
+--    - Crie um bucket público chamado 'audio-content'
+--    - Faça upload dos arquivos MP3
+-- 2. Obtenha as URLs públicas dos arquivos
+-- 3. Substitua os placeholders abaixo pelas URLs reais
+-- 
+-- Exemplo de URL real do Supabase Storage:
+-- 'https://[PROJECT_ID].supabase.co/storage/v1/object/public/audio-content/natureza-chuva.mp3'
 
 -- Áudio 1: Sons da Natureza
 INSERT INTO conteudo_educacional (titulo, subtitulo, fase, tipo, url, duracao_min, categoria, tags, ordem)
@@ -294,7 +304,7 @@ VALUES (
   'Som terapêutico para meditação profunda',
   'CONSCIÊNCIA',
   'audio',
-  '/audio/432hz-healing.mp3', -- Placeholder
+  '/audio/432hz-healing.mp3', -- Placeholder - substituir com Supabase Storage URL
   30,
   'Som Terapêutico',
   '["audio", "frequencia", "432hz", "cura"]',
