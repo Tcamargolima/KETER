@@ -167,6 +167,235 @@ Acesse http://localhost:5173
 
 ---
 
+## 🚀 Deploy para Produção
+
+### Opção Recomendada: Vercel
+
+O KETER está otimizado para deploy no **Vercel** (frontend) + **Supabase** (backend/database).
+
+#### Pré-requisitos de Deploy
+
+- Conta no [Vercel](https://vercel.com) (gratuita)
+- Conta no [Supabase](https://supabase.com) (gratuita)
+- Conta no [Sentry](https://sentry.io) (opcional, para monitoramento)
+- Repositório GitHub com o código
+
+#### Passo 1: Preparar Supabase
+
+1. **Criar projeto em produção** no Supabase
+2. **Executar migrations**: 
+   - Vá em SQL Editor
+   - Execute `database/schema.sql`
+   - Execute migrations adicionais se houver
+3. **Configurar Row Level Security (RLS)**:
+   - Verifique que todas as tabelas têm RLS ENABLED
+   - Confirme policies de segurança
+   - Dashboard → Authentication → Policies
+4. **Seed inicial** (opcional):
+   ```bash
+   # Localmente, com credenciais de produção
+   VITE_SUPABASE_URL=https://seu-projeto.supabase.co \
+   SUPABASE_SERVICE_KEY=sua_service_role_key \
+   npm run db:seed-prod
+   ```
+
+#### Passo 2: Deploy no Vercel
+
+1. **Importar repositório**:
+   - Acesse [vercel.com/new](https://vercel.com/new)
+   - Conecte sua conta GitHub
+   - Selecione o repositório `KETER`
+   - Clique em "Import"
+
+2. **Configurar projeto**:
+   - **Framework Preset**: Vite
+   - **Root Directory**: `./` (raiz)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+
+3. **Variáveis de Ambiente**:
+   
+   No Vercel Dashboard → Settings → Environment Variables, adicione:
+
+   | Nome | Valor | Onde Obter |
+   |------|-------|------------|
+   | `VITE_SUPABASE_URL` | `https://xxx.supabase.co` | Supabase → Settings → API |
+   | `VITE_SUPABASE_ANON_KEY` | `eyJhbG...` | Supabase → Settings → API → anon public |
+   | `VITE_OPENAI_API_KEY` | `sk-...` | OpenAI → API Keys |
+   | `VITE_SENTRY_DSN` | `https://...@sentry.io/...` | Sentry → Project Settings (opcional) |
+   | `VITE_APP_VERSION` | `1.0.0` | Versão atual |
+
+   ⚠️ **Importante**: Configure para todos os ambientes (Production, Preview, Development)
+
+4. **Deploy**:
+   - Clique em "Deploy"
+   - Aguarde build (2-3 minutos)
+   - Vercel fornecerá uma URL: `https://keter.vercel.app`
+
+#### Passo 3: Configurar Domínio Customizado (Opcional)
+
+1. No Vercel Dashboard → Settings → Domains
+2. Adicione seu domínio: `keter.center`
+3. Configure DNS seguindo instruções do Vercel
+4. Aguarde propagação (até 24h)
+
+#### Passo 4: Ativar Monitoramento
+
+##### Vercel Analytics (built-in)
+
+1. Vercel Dashboard → Analytics → Enable
+2. Automaticamente tracka:
+   - Page views
+   - Performance (Core Web Vitals)
+   - Traffic origins
+
+##### Sentry (recomendado)
+
+1. Crie conta em [sentry.io](https://sentry.io)
+2. Crie novo projeto React
+3. Copie o DSN
+4. Adicione `VITE_SENTRY_DSN` nas env vars do Vercel
+5. Redeploy
+
+Sentry capturará:
+- Erros JavaScript
+- Performance issues
+- Session replays (com máscaras de privacidade)
+
+##### Supabase Logs
+
+1. Supabase Dashboard → Logs
+2. Monitore:
+   - Database queries
+   - API errors
+   - Auth events
+3. Configure webhooks para alertas críticos (opcional)
+
+#### Passo 5: Post-Deploy Checklist
+
+- [ ] ✅ App carrega na URL de produção
+- [ ] ✅ Login/Autenticação funciona
+- [ ] ✅ Práticas são carregadas do banco
+- [ ] ✅ IA responde corretamente
+- [ ] ✅ PWA instala corretamente (mobile)
+- [ ] ✅ Service Worker registra (offline mode)
+- [ ] ✅ Realtime notifications funcionam
+- [ ] ✅ Analytics tracking ativo
+- [ ] ✅ Sentry captura erros (force um erro de teste)
+- [ ] ✅ RLS ativo em todas tabelas
+- [ ] ✅ Performance > 90 no Lighthouse
+- [ ] ✅ Responsivo em mobile/tablet/desktop
+
+#### Configuração Avançada
+
+##### Auto-Deploy on Push
+
+O Vercel auto-deploya quando você faz push para `main`:
+
+```bash
+git add .
+git commit -m "feat: nova feature"
+git push origin main
+# Vercel automatically deploys ✅
+```
+
+##### Preview Deployments
+
+Toda PR gera um deploy de preview:
+
+- URL única por PR
+- Teste antes de mergear
+- Compartilhe com equipe/stakeholders
+
+##### Revert Deploy
+
+Se algo der errado:
+
+1. Vercel Dashboard → Deployments
+2. Encontre deploy anterior estável
+3. "..." → Promote to Production
+
+#### Comandos Úteis
+
+```bash
+# Build local (testar antes de deploy)
+npm run build
+npm run preview
+
+# Seed produção (apenas primeira vez)
+npm run db:seed-prod
+
+# Verificar bundle size
+npm run build -- --report
+```
+
+#### Troubleshooting
+
+**Erro: "Failed to load Supabase"**
+- Verifique VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
+- Certifique-se que começam com `VITE_`
+- Redeploy após alterar env vars
+
+**Erro: "OpenAI API Error"**
+- Verifique VITE_OPENAI_API_KEY
+- Confirme créditos na conta OpenAI
+- Verifique rate limits
+
+**PWA não instala**
+- Verifique HTTPS (Vercel fornece automaticamente)
+- Manifesto em `/manifest.webmanifest`
+- Service Worker registrado
+
+**Performance baixa**
+- Ative Vercel Edge Network
+- Otimize imagens
+- Code splitting automático pelo Vite
+
+#### Alternativas ao Vercel
+
+Se preferir outras plataformas:
+
+- **Netlify**: Similar ao Vercel, bom para static + functions
+- **Railway**: Se precisar de backend mais complexo
+- **Cloudflare Pages**: Boa opção para escala global
+- **AWS Amplify**: Se já usa AWS
+
+Todas suportam Vite e funcionarão com ajustes mínimos.
+
+#### Monitoramento de Custos
+
+**Vercel Free Tier** (suficiente para início):
+- 100 GB bandwidth/mês
+- 100 builds/mês
+- Domains ilimitados
+
+**Supabase Free Tier**:
+- 500 MB database
+- 1 GB file storage
+- 2 GB bandwidth
+
+**OpenAI** (pague conforme uso):
+- GPT-4: ~$0.03 por análise
+- GPT-3.5: ~$0.001 por chat
+- Estimativa: $20-50/mês para 100 usuários ativos
+
+**Sentry Free Tier**:
+- 5K errors/mês
+- 1 usuário
+- Suficiente para validação
+
+#### Próximos Passos
+
+1. ✅ Deploy realizado
+2. 📊 Configure analytics
+3. 🐛 Configure Sentry
+4. 🔒 Revise RLS policies
+5. 📱 Teste PWA em mobile
+6. 👥 Convide beta testers
+7. 📈 Monitore métricas
+
+---
+
 ## 📚 Documentação
 
 ### Guias de Setup

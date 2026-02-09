@@ -11,7 +11,8 @@
     "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
     "test": "vitest",
     "db:reset": "node scripts/reset-db.js",
-    "db:seed": "node scripts/seed-db.js"
+    "db:seed": "node scripts/seed-db.js",
+    "db:seed-prod": "node scripts/seed-prod.js"
   },
   "keywords": [
     "evolução pessoal",
@@ -25,6 +26,7 @@
   "author": "KETER Team",
   "license": "MIT",
   "dependencies": {
+    "@sentry/react": "^7.120.4",
     "@supabase/supabase-js": "^2.39.0",
     "chart.js": "^4.4.1",
     "date-fns": "^3.0.0",
