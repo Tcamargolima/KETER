@@ -8,6 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      useCredentials: true,  // Força credentials no fetch do manifest
       includeAssets: ['icon.svg', 'icons/*.png'],
       manifest: {
         name: 'KETER - Evolução Pessoal',
@@ -136,6 +137,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false
+    sourcemap: false,
+    chunkSizeWarningLimit: 1500  // Aumenta o limite para silenciar warnings de bundle grande
   }
 });

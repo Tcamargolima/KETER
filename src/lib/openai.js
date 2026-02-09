@@ -17,10 +17,17 @@
 import OpenAI from 'openai';
 
 // Configuração do OpenAI
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+// Validação de segurança para variáveis de ambiente
+if (!apiKey) {
+  console.warn('VITE_OPENAI_API_KEY não definida. Funcionalidades de IA estarão desabilitadas. Configure as variáveis de ambiente no .env ou nas configurações do Vercel.');
+}
+
+const openai = apiKey ? new OpenAI({
+  apiKey: apiKey,
   dangerouslyAllowBrowser: true // Remove this in production!
-});
+}) : null;
 
 // ================================================
 // CONSTANTS
@@ -166,6 +173,15 @@ Seja conservador: na dúvida, sinalize como possível crise.`
  */
 export const chatWithGuia = async (mensagem, contexto = {}, historico = []) => {
   try {
+    // Verificar se OpenAI está configurado
+    if (!openai) {
+      return {
+        resposta: 'As funcionalidades de IA estão temporariamente indisponíveis. Por favor, configure a VITE_OPENAI_API_KEY.',
+        tokensUsados: 0,
+        error: 'OpenAI API key não configurada'
+      };
+    }
+
     // Construir mensagem de sistema com contexto do usuário
     const systemMessage = {
       role: 'system',
