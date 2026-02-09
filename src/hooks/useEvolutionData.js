@@ -51,7 +51,13 @@ export const useEvolutionData = (userId, daysRange = 90) => {
           .gte('data', dataInicio)
           .order('data', { ascending: true });
 
-        if (reflexoesError) throw reflexoesError;
+        if (reflexoesError) {
+          if (reflexoesError.code === 'PGRST116' || reflexoesError.message?.includes('relation') || reflexoesError.message?.includes('does not exist')) {
+            console.error('❌ Tabela não encontrada: reflexoes. Erro:', reflexoesError.code, reflexoesError.message);
+            console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+          }
+          throw reflexoesError;
+        }
 
         // Carregar práticas completadas
         const { data: praticasData, error: praticasError } = await supabase
@@ -62,7 +68,13 @@ export const useEvolutionData = (userId, daysRange = 90) => {
           .gte('completed_at', dataInicio)
           .order('completed_at', { ascending: true });
 
-        if (praticasError) throw praticasError;
+        if (praticasError) {
+          if (praticasError.code === 'PGRST116' || praticasError.message?.includes('relation') || praticasError.message?.includes('does not exist')) {
+            console.error('❌ Tabela não encontrada: praticas_diarias ou praticas. Erro:', praticasError.code, praticasError.message);
+            console.error('💡 Crie as tabelas no Supabase usando os arquivos supabase-schema.sql e database/migration-praticas-table.sql');
+          }
+          throw praticasError;
+        }
 
         // Carregar micro-atos
         const { data: microAtosData, error: microAtosError } = await supabase

@@ -270,24 +270,32 @@ export const completarPratica = async (userId, pratica) => {
         onConflict: 'ketero_id,data'
       });
 
-    if (praticaError) throw praticaError;
+    if (praticaError) {
+      if (praticaError.code === 'PGRST116' || praticaError.message?.includes('relation') || praticaError.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: praticas_diarias. Erro:', praticaError.code, praticaError.message);
+        console.error('💡 Crie a tabela "praticas_diarias" no Supabase usando o arquivo supabase-schema.sql');
+      }
+      throw praticaError;
+    }
 
     // 2. Atualizar estatísticas do ketero
     const { data: ketero } = await getKeteroProfile(userId);
     
-    const { error: updateError } = await supabase
-      .from('keteros')
-      .update({
-        total_praticas: ketero.total_praticas + 1,
-        sequencia_atual: ketero.sequencia_atual + 1,
-        sequencia_maxima: Math.max(ketero.sequencia_maxima, ketero.sequencia_atual + 1),
-        tempo_total_minutos: ketero.tempo_total_minutos + Math.floor(pratica.duracao / 60),
-        dia_total_app: ketero.dia_total_app + 1,
-        ultimo_acesso: new Date().toISOString()
-      })
-      .eq('id', userId);
+    if (ketero) {
+      const { error: updateError } = await supabase
+        .from('keteros')
+        .update({
+          total_praticas: ketero.total_praticas + 1,
+          sequencia_atual: ketero.sequencia_atual + 1,
+          sequencia_maxima: Math.max(ketero.sequencia_maxima, ketero.sequencia_atual + 1),
+          tempo_total_minutos: ketero.tempo_total_minutos + Math.floor(pratica.duracao / 60),
+          dia_total_app: ketero.dia_total_app + 1,
+          ultimo_acesso: new Date().toISOString()
+        })
+        .eq('id', userId);
 
-    if (updateError) throw updateError;
+      if (updateError) throw updateError;
+    }
 
     return { error: null };
   } catch (error) {
@@ -302,7 +310,7 @@ export const completarPratica = async (userId, pratica) => {
 export const salvarReflexao = async (userId, reflexao) => {
   try {
     const { data, error } = await supabase
-      .from('reflexoes_noturnas')
+      .from('reflexoes')
       .upsert([
         {
           ketero_id: userId,
@@ -315,10 +323,16 @@ export const salvarReflexao = async (userId, reflexao) => {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: reflexoes. Erro:', error.code, error.message);
+        console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+      }
+      throw error;
+    }
 
     // Atualizar contador
-    await supabase.rpc('increment_reflexoes', { user_id: userId });
+    await supabase.rpc('increment_reflexoes', { p_user_id: userId });
 
     return { data, error: null };
   } catch (error) {
@@ -343,11 +357,17 @@ export const getPraticasMes = async (userId, mes, ano) => {
       .lte('data', endDate)
       .order('data', { ascending: false });
 
-    if (error) throw error;
-    return { data, error: null };
+    if (error) {
+      if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: praticas_diarias. Erro:', error.code, error.message);
+        console.error('💡 Crie a tabela "praticas_diarias" no Supabase usando o arquivo supabase-schema.sql');
+      }
+      throw error;
+    }
+    return { data: data || [], error: null };
   } catch (error) {
-    console.error('Erro ao obter práticas:', error);
-    return { data: null, error };
+    console.error('Erro ao obter práticas do mês:', error);
+    return { data: [], error };
   }
 };
 
@@ -357,17 +377,23 @@ export const getPraticasMes = async (userId, mes, ano) => {
 export const getReflexoesRecentes = async (userId, limite = 10) => {
   try {
     const { data, error } = await supabase
-      .from('reflexoes_noturnas')
+      .from('reflexoes')
       .select('*')
       .eq('ketero_id', userId)
       .order('data', { ascending: false })
       .limit(limite);
 
-    if (error) throw error;
-    return { data, error: null };
+    if (error) {
+      if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: reflexoes. Erro:', error.code, error.message);
+        console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+      }
+      throw error;
+    }
+    return { data: data || [], error: null };
   } catch (error) {
-    console.error('Erro ao obter reflexões:', error);
-    return { data: null, error };
+    console.error('Erro ao obter reflexões recentes:', error);
+    return { data: [], error };
   }
 };
 
@@ -504,11 +530,18 @@ export const getPraticas = async (filtros = {}) => {
     }
 
     const { data, error } = await query;
-    if (error) throw error;
-    return { data, error: null };
+    
+    if (error) {
+      if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: praticas. Erro:', error.code, error.message);
+        console.error('💡 Crie a tabela "praticas" no Supabase usando o arquivo database/migration-praticas-table.sql');
+      }
+      throw error;
+    }
+    return { data: data || [], error: null };
   } catch (error) {
     console.error('Erro ao obter práticas:', error);
-    return { data: null, error };
+    return { data: [], error };
   }
 };
 
@@ -523,10 +556,16 @@ export const getPraticaById = async (praticaId) => {
       .eq('id', praticaId)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: praticas. Erro:', error.code, error.message);
+        console.error('💡 Crie a tabela "praticas" no Supabase usando o arquivo database/migration-praticas-table.sql');
+      }
+      throw error;
+    }
     return { data, error: null };
   } catch (error) {
-    console.error('Erro ao obter prática:', error);
+    console.error('Erro ao obter prática por ID:', error);
     return { data: null, error };
   }
 };
@@ -542,11 +581,17 @@ export const getPraticasByFase = async (fase) => {
       .eq('fase', fase)
       .order('ordem', { ascending: true });
 
-    if (error) throw error;
-    return { data, error: null };
+    if (error) {
+      if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: praticas. Erro:', error.code, error.message);
+        console.error('💡 Crie a tabela "praticas" no Supabase usando o arquivo database/migration-praticas-table.sql');
+      }
+      throw error;
+    }
+    return { data: data || [], error: null };
   } catch (error) {
     console.error('Erro ao obter práticas da fase:', error);
-    return { data: null, error };
+    return { data: [], error };
   }
 };
 
@@ -563,11 +608,17 @@ export const getHistoricoPraticas = async (userId, limite = 30) => {
       .order('completed_at', { ascending: false })
       .limit(limite);
 
-    if (error) throw error;
-    return { data, error: null };
+    if (error) {
+      if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: praticas_diarias. Erro:', error.code, error.message);
+        console.error('💡 Crie a tabela "praticas_diarias" no Supabase usando o arquivo supabase-schema.sql');
+      }
+      throw error;
+    }
+    return { data: data || [], error: null };
   } catch (error) {
     console.error('Erro ao obter histórico de práticas:', error);
-    return { data: null, error };
+    return { data: [], error };
   }
 };
 

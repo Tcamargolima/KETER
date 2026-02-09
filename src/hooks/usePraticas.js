@@ -36,7 +36,13 @@ export const usePraticas = (userId) => {
         .order('fase', { ascending: true })
         .order('ordem', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: praticas. Erro:', error.code, error.message);
+          console.error('💡 Crie a tabela "praticas" no Supabase usando o arquivo database/migration-praticas-table.sql');
+        }
+        throw error;
+      }
 
       setPraticas(data || []);
       setPraticasFiltradas(data || []);
@@ -113,10 +119,16 @@ export const usePraticas = (userId) => {
         .eq('id', praticaId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: praticas. Erro:', error.code, error.message);
+          console.error('💡 Crie a tabela "praticas" no Supabase usando o arquivo database/migration-praticas-table.sql');
+        }
+        throw error;
+      }
       return { data, error: null };
     } catch (err) {
-      console.error('Erro ao obter prática:', err);
+      console.error('Erro ao obter prática por ID:', err);
       return { data: null, error: err };
     }
   };
@@ -149,10 +161,16 @@ export const usePraticas = (userId) => {
         .order('completed_at', { ascending: false })
         .limit(limite);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: praticas_diarias. Erro:', error.code, error.message);
+          console.error('💡 Crie a tabela "praticas_diarias" no Supabase usando o arquivo supabase-schema.sql');
+        }
+        throw error;
+      }
       return { data: data || [], error: null };
     } catch (err) {
-      console.error('Erro ao obter histórico:', err);
+      console.error('Erro ao obter histórico de práticas:', err);
       return { data: [], error: err };
     }
   };
@@ -240,7 +258,13 @@ export const usePraticas = (userId) => {
         .eq('ketero_id', userId)
         .eq('completada', true);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: praticas_diarias. Erro:', error.code, error.message);
+          console.error('💡 Crie a tabela "praticas_diarias" no Supabase usando o arquivo supabase-schema.sql');
+        }
+        throw error;
+      }
 
       const estatisticas = {
         total: data.length,

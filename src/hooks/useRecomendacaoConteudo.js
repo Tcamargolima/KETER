@@ -45,19 +45,34 @@ export const useRecomendacaoConteudo = (userId) => {
         .single();
 
       // 2. Buscar reflexões recentes (últimas 3)
-      const { data: reflexoes } = await supabase
-        .from('reflexoes_noturnas')
+      const { data: reflexoes, error: reflexoesError } = await supabase
+        .from('reflexoes')
         .select('sentimentos_dia, mudaria_algo')
         .eq('ketero_id', userId)
         .order('data', { ascending: false })
         .limit(3);
 
+      if (reflexoesError) {
+        if (reflexoesError.code === 'PGRST116' || reflexoesError.message?.includes('relation') || reflexoesError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: reflexoes. Erro:', reflexoesError.code, reflexoesError.message);
+          console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+        }
+      }
+
       // 3. Buscar todo o conteúdo disponível
-      const { data: todosConteudos } = await supabase
+      const { data: todosConteudos, error: conteudosError } = await supabase
         .from('conteudo_educacional')
         .select('id, titulo, subtitulo, fase, tipo, categoria, tags, duracao_min')
         .eq('publicado', true)
         .order('ordem', { ascending: true });
+
+      if (conteudosError) {
+        if (conteudosError.code === 'PGRST116' || conteudosError.message?.includes('relation') || conteudosError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: conteudo_educacional. Erro:', conteudosError.code, conteudosError.message);
+          console.error('💡 Crie a tabela "conteudo_educacional" no Supabase usando o arquivo database/migrations/add-conteudo-educacional.sql');
+        }
+        throw conteudosError;
+      }
 
       if (!todosConteudos || todosConteudos.length === 0) {
         setRecomendacoes([]);
@@ -132,16 +147,23 @@ Exemplo: "5, 12, 18 - O usuário está na fase Despertar e suas reflexões indic
           .eq('id', userId)
           .single();
 
-        const { data: todosConteudos } = await supabase
+        const { data: todosConteudos, error: conteudosError } = await supabase
           .from('conteudo_educacional')
           .select('*')
           .eq('publicado', true)
           .limit(20);
 
+        if (conteudosError) {
+          if (conteudosError.code === 'PGRST116' || conteudosError.message?.includes('relation') || conteudosError.message?.includes('does not exist')) {
+            console.error('❌ Tabela não encontrada: conteudo_educacional. Erro:', conteudosError.code, conteudosError.message);
+          }
+        }
+
         const fallback = recomendarPorRegras(ketero, todosConteudos || []);
         setRecomendacoes(fallback);
         return { data: fallback, error: null };
       } catch (fallbackError) {
+        console.error('Erro no fallback de recomendações:', fallbackError);
         return { data: [], error: fallbackError };
       }
     } finally {
