@@ -7,8 +7,24 @@ import { createClient } from '@supabase/supabase-js';
 
 // Configuração do Supabase
 // IMPORTANTE: Substitua essas variáveis pelas suas credenciais do Supabase
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Validação de segurança para variáveis de ambiente
+if (!supabaseUrl) {
+  throw new Error('VITE_SUPABASE_URL não definida. Configure as variáveis de ambiente no .env ou nas configurações do Vercel.');
+}
+
+if (!supabaseAnonKey) {
+  throw new Error('VITE_SUPABASE_ANON_KEY não definida. Configure as variáveis de ambiente no .env ou nas configurações do Vercel.');
+}
+
+// Validar formato da URL
+try {
+  new URL(supabaseUrl);
+} catch (error) {
+  throw new Error(`VITE_SUPABASE_URL inválida: "${supabaseUrl}". Deve ser uma URL HTTP ou HTTPS válida.`);
+}
 
 // Criar cliente Supabase
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
