@@ -598,6 +598,114 @@ export const subscribeToConquistas = (userId, callback) => {
 };
 
 // ================================================
+// NOTIFICATIONS HELPERS
+// ================================================
+
+/**
+ * Criar notificação
+ */
+export const createNotification = async (userId, { type, title, body, data = {} }) => {
+  try {
+    const { data: notification, error } = await supabase
+      .from('notifications')
+      .insert([
+        {
+          user_id: userId,
+          type,
+          title,
+          body,
+          data
+        }
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { data: notification, error: null };
+  } catch (error) {
+    console.error('Erro ao criar notificação:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Obter notificações do usuário
+ */
+export const getNotifications = async (userId, limit = 50) => {
+  try {
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao obter notificações:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Marcar notificação como lida
+ */
+export const markNotificationAsRead = async (notificationId, userId) => {
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('id', notificationId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    console.error('Erro ao marcar notificação:', error);
+    return { error };
+  }
+};
+
+/**
+ * Marcar todas notificações como lidas
+ */
+export const markAllNotificationsAsRead = async (userId) => {
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('user_id', userId)
+      .eq('read', false);
+
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    console.error('Erro ao marcar todas notificações:', error);
+    return { error };
+  }
+};
+
+/**
+ * Subscribe para notificações em tempo real
+ */
+export const subscribeToNotifications = (userId, callback) => {
+  return supabase
+    .channel(`notifications:${userId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`
+      },
+      callback
+    )
+    .subscribe();
+};
+
+// ================================================
 // STORAGE HELPERS (para fotos de perfil futuras)
 // ================================================
 
