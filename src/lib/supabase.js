@@ -740,6 +740,173 @@ export const uploadProfilePhoto = async (userId, file) => {
 };
 
 // ================================================
+// CIRCLES (CÍRCULOS) HELPERS - PHASE 11
+// ================================================
+
+/**
+ * Obter círculos públicos e círculos que o usuário é membro
+ */
+export const getCirculos = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from('circulos')
+      .select('*')
+      .or(`is_public.eq.true,created_by.eq.${userId}`)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao obter círculos:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Criar novo círculo
+ */
+export const createCirculo = async (userId, circuloData) => {
+  try {
+    const { data, error } = await supabase
+      .from('circulos')
+      .insert([
+        {
+          ...circuloData,
+          created_by: userId
+        }
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao criar círculo:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Entrar em um círculo
+ */
+export const joinCirculo = async (userId, circuloId) => {
+  try {
+    const { data, error } = await supabase
+      .from('circulo_membros')
+      .insert([
+        {
+          circulo_id: circuloId,
+          user_id: userId,
+          role: 'member'
+        }
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao entrar no círculo:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Sair de um círculo
+ */
+export const leaveCirculo = async (userId, circuloId) => {
+  try {
+    const { error } = await supabase
+      .from('circulo_membros')
+      .delete()
+      .eq('circulo_id', circuloId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    console.error('Erro ao sair do círculo:', error);
+    return { error };
+  }
+};
+
+/**
+ * Obter mensagens de um círculo
+ */
+export const getCirculoMensagens = async (circuloId, limit = 100) => {
+  try {
+    const { data, error } = await supabase
+      .from('circulo_mensagens')
+      .select(`
+        *,
+        keteros(id, nome, foto_url)
+      `)
+      .eq('circulo_id', circuloId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true })
+      .limit(limit);
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao obter mensagens:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Enviar mensagem em um círculo
+ */
+export const sendCirculoMensagem = async (userId, circuloId, mensagem, anonimo = false) => {
+  try {
+    // Obter nome do usuário
+    const { data: userData } = await getKeteroProfile(userId);
+
+    const { data, error } = await supabase
+      .from('circulo_mensagens')
+      .insert([
+        {
+          circulo_id: circuloId,
+          user_id: userId,
+          mensagem: mensagem,
+          anonimo: anonimo,
+          user_nome: userData?.nome || 'Usuário'
+        }
+      ])
+      .select(`
+        *,
+        keteros(id, nome, foto_url)
+      `)
+      .single();
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erro ao enviar mensagem:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Subscribe para mensagens de um círculo em tempo real
+ */
+export const subscribeToCirculoMensagens = (circuloId, callback) => {
+  return supabase
+    .channel(`circulo:${circuloId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'circulo_mensagens',
+        filter: `circulo_id=eq.${circuloId}`
+      },
+      callback
+    )
+    .subscribe();
+};
+
+// ================================================
 // EXPORT DEFAULT
 // ================================================
 export default supabase;
