@@ -1,6 +1,31 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
+// Funções de sincronização específicas (fora do componente)
+const syncReflexao = async (data) => {
+  const { error } = await supabase
+    .from('reflexoes')
+    .insert(data);
+  
+  if (error) throw error;
+};
+
+const syncPratica = async (data) => {
+  const { error } = await supabase
+    .from('praticas_realizadas')
+    .insert(data);
+  
+  if (error) throw error;
+};
+
+const syncMicroAto = async (data) => {
+  const { error } = await supabase
+    .from('micro_atos')
+    .insert(data);
+  
+  if (error) throw error;
+};
+
 /**
  * Hook para gerenciar estado offline e sincronização
  * Detecta quando o app está offline e gerencia sync de dados pendentes
@@ -15,7 +40,6 @@ export function useOffline() {
     const handleOnline = () => {
       console.log('App voltou online');
       setIsOffline(false);
-      syncPendingOperations();
     };
 
     const handleOffline = () => {
@@ -31,6 +55,13 @@ export function useOffline() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Sincronizar quando voltar online
+  useEffect(() => {
+    if (!isOffline && pendingOperations.length > 0) {
+      syncPendingOperations();
+    }
+  }, [isOffline, pendingOperations.length]);
 
   // Carregar operações pendentes do localStorage
   useEffect(() => {
@@ -113,31 +144,6 @@ export function useOffline() {
       console.error(`${failed.length} operações falharam`);
     }
   }, [pendingOperations, isOffline]);
-
-  // Funções de sincronização específicas
-  const syncReflexao = async (data) => {
-    const { error } = await supabase
-      .from('reflexoes')
-      .insert(data);
-    
-    if (error) throw error;
-  };
-
-  const syncPratica = async (data) => {
-    const { error } = await supabase
-      .from('praticas_realizadas')
-      .insert(data);
-    
-    if (error) throw error;
-  };
-
-  const syncMicroAto = async (data) => {
-    const { error } = await supabase
-      .from('micro_atos')
-      .insert(data);
-    
-    if (error) throw error;
-  };
 
   return {
     isOffline,
