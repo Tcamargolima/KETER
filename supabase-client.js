@@ -6,11 +6,22 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Configuração do Supabase
-// IMPORTANTE: Substitua essas variáveis pelas suas credenciais do Supabase
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Criar cliente Supabase
+// Debug obrigatório para deploy
+console.log('[Supabase Debug] VITE_SUPABASE_URL:', supabaseUrl);
+console.log('[Supabase Debug] VITE_SUPABASE_ANON_KEY presente?', !!supabaseAnonKey);
+
+if (!supabaseUrl || supabaseUrl === 'YOUR_SUPABASE_URL') {
+  console.error('[Supabase Error] URL inválida ou não carregada. Valor atual:', supabaseUrl);
+  // Não throw ainda, para não crashar o app inteiro, mas logar
+}
+
+if (!supabaseAnonKey) {
+  console.error('[Supabase Error] Anon key ausente!');
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
