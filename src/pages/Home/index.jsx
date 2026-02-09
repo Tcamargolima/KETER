@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Calendar, Clock, TrendingUp, BookOpen, Play, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, Calendar, Clock, TrendingUp, BookOpen, Play, ChevronRight, MessageCircle } from 'lucide-react';
 import { usePraticas } from '../../hooks/usePraticas';
 import { usePhaseProgress } from '../../hooks/usePhaseProgress';
 import { MicroAtosCard } from '../../components/features/MicroAtosCard';
@@ -11,6 +12,7 @@ import RecommendedContentWidget from '../../components/features/RecommendedConte
  * Mostra a próxima prática recomendada pela IA
  */
 const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
+  const navigate = useNavigate();
   const {
     faseAtual,
     recomendarProximaPratica,
