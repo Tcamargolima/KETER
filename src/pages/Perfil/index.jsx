@@ -15,7 +15,7 @@ import { PhaseTransitionModal } from '../../components/features/PhaseTransitionM
 
 export const Perfil = ({ user, userStats }) => {
   const [abaAtiva, setAbaAtiva] = useState('visao-geral');
-  const { historicoReflexoes } = useReflexoes(user?.id);
+  const { historicoReflexoes, carregando: carregandoReflexoes, erro: erroReflexoes } = useReflexoes(user?.id);
   
   const {
     transicaoPendente,
@@ -140,7 +140,7 @@ export const Perfil = ({ user, userStats }) => {
           {abaAtiva === 'visao-geral' && <VisaoGeral userStats={userStats} />}
           {abaAtiva === 'evolucao' && <EvolucaoTab userId={user?.id} />}
           {abaAtiva === 'micro-atos' && <MicroAtosTab userId={user?.id} userStats={userStats} />}
-          {abaAtiva === 'reflexoes' && <ReflexoesTab historicoReflexoes={historicoReflexoes} />}
+          {abaAtiva === 'reflexoes' && <ReflexoesTab historicoReflexoes={historicoReflexoes} carregando={carregandoReflexoes} erro={erroReflexoes} />}
           {abaAtiva === 'conquistas' && <ConquistasTab userId={user?.id} />}
           {abaAtiva === 'configuracoes' && <ConfiguracoesTab user={user} />}
         </div>
@@ -195,7 +195,30 @@ const MicroAtosTab = ({ userId, userStats }) => {
 // ================================================
 // ABA: Reflexões
 // ================================================
-const ReflexoesTab = ({ historicoReflexoes }) => {
+const ReflexoesTab = ({ historicoReflexoes, carregando, erro }) => {
+  if (carregando) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  if (erro) {
+    return (
+      <div className="bg-red-900/20 border border-red-700 rounded-xl p-6">
+        <h3 className="text-red-200 font-semibold text-lg mb-2">Não foi possível carregar reflexões</h3>
+        <p className="text-red-300 mb-4">{erro}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Tentar Novamente
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-6">

@@ -15,25 +15,34 @@ export const useReflexoes = (userId) => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [reflexaoHoje, setReflexaoHoje] = useState(null);
   const [mostrarNotificacao, setMostrarNotificacao] = useState(false);
-  const [carregando, setCarregando] = useState(false);
+  const [carregando, setCarregando] = useState(true);
   const [analisando, setAnalisando] = useState(false);
   const [analiseResultado, setAnaliseResultado] = useState(null);
   const [historicoReflexoes, setHistoricoReflexoes] = useState([]);
+  const [erro, setErro] = useState(null);
 
   // ================================================
   // 1. Verificar se já fez reflexão hoje
   // ================================================
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setCarregando(false);
+      return;
+    }
 
     // Validar UUID antes de fazer query
     if (!isValidUUID(userId)) {
       console.error('UUID inválido em useReflexoes:', userId);
+      setErro('ID de usuário inválido');
+      setCarregando(false);
       return;
     }
 
     const verificarReflexaoHoje = async () => {
       try {
+        setCarregando(true);
+        setErro(null);
+        
         const { default: supabase } = await import('../lib/supabase');
         const hoje = new Date().toISOString().split('T')[0];
 
@@ -44,14 +53,15 @@ export const useReflexoes = (userId) => {
           .eq('data', hoje)
           .maybeSingle();
 
-        if (!error && data) {
-          setReflexaoHoje(data);
-        } else {
-          setReflexaoHoje(null);
-        }
+        if (error) throw error;
+
+        setReflexaoHoje(data || null);
       } catch (err) {
         console.error('Erro ao verificar reflexão:', err);
+        setErro(err.message);
         setReflexaoHoje(null);
+      } finally {
+        setCarregando(false);
       }
     };
 
@@ -98,6 +108,8 @@ export const useReflexoes = (userId) => {
 
     const carregarHistorico = async () => {
       try {
+        setErro(null);
+        
         const { default: supabase } = await import('../lib/supabase');
 
         const { data, error } = await supabase
@@ -107,11 +119,12 @@ export const useReflexoes = (userId) => {
           .order('data', { ascending: false })
           .limit(30);
 
-        if (!error && data) {
-          setHistoricoReflexoes(data);
-        }
+        if (error) throw error;
+
+        setHistoricoReflexoes(data || []);
       } catch (err) {
         console.error('Erro ao carregar histórico:', err);
+        setErro(err.message);
       }
     };
 
@@ -240,12 +253,14 @@ export const useReflexoes = (userId) => {
       const { default: supabase } = await import('../lib/supabase');
 
       // Buscar últimas reflexões para verificar sequência
-      const { data: reflexoes } = await supabase
+      const { data: reflexoes, error } = await supabase
         .from('reflexoes')
         .select('data')
         .eq('ketero_id', userId)
         .order('data', { ascending: false })
         .limit(3);
+
+      if (error) throw error;
 
       if (!reflexoes || reflexoes.length < 3) return;
 
@@ -267,6 +282,7 @@ export const useReflexoes = (userId) => {
       }
     } catch (error) {
       console.error('Erro ao verificar conquistas:', error);
+      // Não propaga erro para não bloquear salvamento da reflexão
     }
   };
 
@@ -297,6 +313,7 @@ export const useReflexoes = (userId) => {
     setMostrarNotificacao,
     reflexaoHoje,
     carregando,
+    erro,
     analisando,
     analiseResultado,
     historicoReflexoes,

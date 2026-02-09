@@ -17,7 +17,8 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
     faseAtual,
     recomendarProximaPratica,
     obterEstatisticas,
-    carregando
+    carregando,
+    erro
   } = usePraticas(userId);
 
   const {
@@ -31,6 +32,7 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
   const [praticaRecomendada, setPraticaRecomendada] = useState(null);
   const [estatisticas, setEstatisticas] = useState(null);
   const [carregandoRecomendacao, setCarregandoRecomendacao] = useState(true);
+  const [erroRecomendacao, setErroRecomendacao] = useState(null);
   const [showTransitionModal, setShowTransitionModal] = useState(false);
 
   // Verificar transição pendente ao carregar
@@ -45,20 +47,29 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
     if (!userId) return;
 
     const carregarDados = async () => {
-      setCarregandoRecomendacao(true);
+      try {
+        setCarregandoRecomendacao(true);
+        setErroRecomendacao(null);
 
-      // Verificar se há transição disponível
-      await verificarETransitar();
+        // Verificar se há transição disponível
+        await verificarETransitar();
 
-      // Buscar prática recomendada
-      const { data: pratica } = await recomendarProximaPratica();
-      setPraticaRecomendada(pratica);
+        // Buscar prática recomendada
+        const { data: pratica, error: erroRecom } = await recomendarProximaPratica();
+        if (erroRecom) {
+          throw new Error(typeof erroRecom === 'string' ? erroRecom : erroRecom.message);
+        }
+        setPraticaRecomendada(pratica);
 
-      // Buscar estatísticas
-      const stats = await obterEstatisticas();
-      setEstatisticas(stats);
-
-      setCarregandoRecomendacao(false);
+        // Buscar estatísticas
+        const stats = await obterEstatisticas();
+        setEstatisticas(stats);
+      } catch (err) {
+        console.error('Erro ao carregar dados da home:', err);
+        setErroRecomendacao(err.message || 'Não foi possível carregar os dados');
+      } finally {
+        setCarregandoRecomendacao(false);
+      }
     };
 
     carregarDados();
@@ -77,6 +88,24 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (erro || erroRecomendacao) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md">
+          <h3 className="text-red-800 font-semibold text-lg mb-2">Não foi possível carregar</h3>
+          <p className="text-red-600 mb-4">{erro || erroRecomendacao}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Tentar Novamente
+          </button>
+        </div>
       </div>
     );
   }
