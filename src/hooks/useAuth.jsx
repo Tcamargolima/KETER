@@ -74,3 +74,40 @@ export function useAuthContext() {
   }
   return context;
 }
+
+/**
+ * Hook simples para acessar apenas a sessão do usuário
+ * Pode ser usado em qualquer lugar sem necessitar de AuthProvider
+ * 
+ * @returns {{session: Object|null, loading: boolean}} Objeto com a sessão atual e estado de carregamento
+ * @example
+ * const { session, loading } = useSession();
+ * const userId = session?.user?.id;
+ * 
+ * Use este hook quando você só precisa da sessão (para pegar user.id, email, etc)
+ * e não precisa das funções de signIn/signUp/signOut do hook completo useAuth()
+ */
+export function useSession() {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Obter sessão atual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    // Escutar mudanças na autenticação
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return { session, loading };
+}

@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { isValidUUID } from '../lib/utils';
 
 /**
  * Hook para gerenciar conteúdo educacional
@@ -78,6 +79,12 @@ export const useConteudoEducacional = (userId, filtros = {}) => {
   const buscarFavoritos = async () => {
     if (!userId) return { data: [], error: null };
 
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em buscarFavoritos:', userId);
+      return { data: [], error: 'ID de usuário inválido' };
+    }
+
     try {
       const { data, error } = await supabase
         .from('conteudo_favoritos')
@@ -105,6 +112,13 @@ export const useConteudoEducacional = (userId, filtros = {}) => {
     if (!userId) {
       setErro('Usuário não autenticado');
       return { error: 'Usuário não autenticado' };
+    }
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em toggleFavorito:', userId);
+      setErro('ID de usuário inválido');
+      return { error: 'ID de usuário inválido' };
     }
 
     try {

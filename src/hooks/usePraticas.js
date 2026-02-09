@@ -9,6 +9,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { isValidUUID } from '../lib/utils';
 
 export const usePraticas = (userId) => {
   const [praticas, setPraticas] = useState([]);
@@ -52,6 +53,13 @@ export const usePraticas = (userId) => {
   // ================================================
   useEffect(() => {
     if (!userId) return;
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em usePraticas:', userId);
+      setErro('ID de usuário inválido');
+      return;
+    }
 
     const obterFaseUsuario = async () => {
       try {
@@ -125,6 +133,12 @@ export const usePraticas = (userId) => {
   // ================================================
   const obterHistoricoPraticas = async (limite = 30) => {
     if (!userId) return { data: [], error: null };
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em obterHistoricoPraticas:', userId);
+      return { data: [], error: 'ID de usuário inválido' };
+    }
 
     try {
       const { data, error } = await supabase
@@ -212,6 +226,12 @@ export const usePraticas = (userId) => {
   // ================================================
   const obterEstatisticas = async () => {
     if (!userId) return null;
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em obterEstatisticas:', userId);
+      return null;
+    }
 
     try {
       const { data, error } = await supabase

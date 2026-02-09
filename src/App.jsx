@@ -7,13 +7,16 @@ import Sabedoria from './pages/Sabedoria';
 import { OfflineIndicator } from './components/features/OfflineIndicator';
 import { useOffline } from './hooks/useOffline';
 import { usePWAInstall } from './hooks/usePWAInstall';
+import { useSession } from './hooks/useAuth';
+import { getUserIdFromSession } from './lib/utils';
 
 /**
  * App Component - Root Application
- * Integrates PWA capabilities with offline support
+ * Integrates PWA capabilities with offline support and real authentication
  */
 function App() {
-  const [userId, setUserId] = useState('demo-user'); // TODO: Replace with real auth
+  const { session, loading: authLoading } = useSession();
+  const userId = getUserIdFromSession(session);
   const { isOffline, isSyncing } = useOffline();
   const { showInstallPrompt, installApp, dismissPrompt } = usePWAInstall();
 
@@ -26,6 +29,36 @@ function App() {
       });
     }
   }, []);
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-amber-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if user is not authenticated
+  if (!userId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-amber-50 to-purple-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
+          <div className="text-6xl mb-4">🔐</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Autenticação Necessária</h2>
+          <p className="text-gray-600 mb-6">
+            Por favor, faça login para acessar o KETER.
+          </p>
+          <p className="text-sm text-gray-500">
+            Configure a autenticação do Supabase para continuar.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>

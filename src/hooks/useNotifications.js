@@ -10,6 +10,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { isValidUUID } from '../lib/utils';
 
 /**
  * Hook para gerenciar notificações do usuário
@@ -27,6 +28,14 @@ export const useNotifications = (userId) => {
   // ================================================
   const fetchNotifications = useCallback(async () => {
     if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em useNotifications:', userId);
+      setError('ID de usuário inválido');
       setLoading(false);
       return;
     }

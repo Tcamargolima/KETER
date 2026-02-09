@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { chatWithGuia } from '../lib/openai';
 import { supabase } from '../lib/supabase';
+import { isValidUUID } from '../lib/utils';
 
 /**
  * Hook para recomendação de conteúdo educacional por IA
@@ -23,6 +24,13 @@ export const useRecomendacaoConteudo = (userId) => {
     if (!userId) {
       setErro('Usuário não autenticado');
       return { data: null, error: 'Usuário não autenticado' };
+    }
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(userId)) {
+      console.error('UUID inválido em useRecomendacaoConteudo:', userId);
+      setErro('ID de usuário inválido');
+      return { data: null, error: 'ID de usuário inválido' };
     }
 
     try {

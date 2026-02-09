@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './useAuth';
 import { generatePhaseTransitionMessage } from '../lib/openai';
+import { isValidUUID } from '../lib/utils';
 
 // ================================================
 // CRITÉRIOS DE CONCLUSÃO POR FASE
@@ -69,6 +70,13 @@ export const usePhaseProgress = () => {
   // Carregar progresso atual
   const carregarProgresso = useCallback(async () => {
     if (!user?.id) return;
+
+    // Validar UUID antes de fazer query
+    if (!isValidUUID(user.id)) {
+      console.error('UUID inválido em usePhaseProgress:', user.id);
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
