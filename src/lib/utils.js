@@ -3,7 +3,7 @@
  */
 
 /**
- * Validates if a string is a valid UUID v4
+ * Validates if a string is a valid UUID (versions 1-5)
  * @param {string} uuid - The string to validate
  * @returns {boolean} - True if valid UUID, false otherwise
  */
