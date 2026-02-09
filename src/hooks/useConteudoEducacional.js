@@ -60,7 +60,13 @@ export const useConteudoEducacional = (userId, filtros = {}) => {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: conteudo_educacional. Erro:', error.code, error.message);
+          console.error('💡 Crie a tabela "conteudo_educacional" no Supabase usando o arquivo database/migrations/add-conteudo-educacional.sql');
+        }
+        throw error;
+      }
 
       setConteudos(data || []);
       return { data, error: null };

@@ -49,13 +49,19 @@ export const useSmartReminders = (userId, userProfile, onNotificationCreated) =>
       }
 
       // Verificar se já praticou hoje
-      const { data: praticaHoje } = await supabase
+      const { data: praticaHoje, error: praticaError } = await supabase
         .from('praticas_diarias')
         .select('id')
         .eq('ketero_id', userId)
         .eq('data', today)
         .eq('completada', true)
         .single();
+
+      if (praticaError && praticaError.code === 'PGRST116') {
+        console.error('❌ Tabela não encontrada: praticas_diarias. Erro:', praticaError.code);
+        console.error('💡 Crie a tabela "praticas_diarias" no Supabase usando o arquivo supabase-schema.sql');
+        return;
+      }
 
       if (praticaHoje) {
         return; // Já praticou hoje
@@ -96,12 +102,18 @@ export const useSmartReminders = (userId, userProfile, onNotificationCreated) =>
       }
 
       // Verificar se já refletiu hoje
-      const { data: reflexaoHoje } = await supabase
-        .from('reflexoes_noturnas')
+      const { data: reflexaoHoje, error: reflexaoError } = await supabase
+        .from('reflexoes')
         .select('id')
         .eq('ketero_id', userId)
         .eq('data', today)
         .single();
+
+      if (reflexaoError && reflexaoError.code === 'PGRST116') {
+        console.error('❌ Tabela não encontrada: reflexoes. Erro:', reflexaoError.code);
+        console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+        return;
+      }
 
       if (reflexaoHoje) {
         return; // Já refletiu hoje
@@ -139,13 +151,19 @@ export const useSmartReminders = (userId, userProfile, onNotificationCreated) =>
     // Se tinha um streak e agora está zerado, avisar
     if (userProfile.sequencia_maxima > 7 && userProfile.sequencia_atual === 0) {
       // Verificar se praticou hoje
-      const { data: praticaHoje } = await supabase
+      const { data: praticaHoje, error: praticaError } = await supabase
         .from('praticas_diarias')
         .select('id')
         .eq('ketero_id', userId)
         .eq('data', today)
         .eq('completada', true)
         .single();
+
+      if (praticaError && praticaError.code === 'PGRST116') {
+        console.error('❌ Tabela não encontrada: praticas_diarias. Erro:', praticaError.code);
+        console.error('💡 Crie a tabela "praticas_diarias" no Supabase usando o arquivo supabase-schema.sql');
+        return;
+      }
 
       if (!praticaHoje) {
         // Criar notificação de streak perdido
@@ -172,13 +190,21 @@ export const useSmartReminders = (userId, userProfile, onNotificationCreated) =>
     if (!userId || !userProfile) return;
 
     // Buscar última reflexão
-    const { data: ultimaReflexao } = await supabase
-      .from('reflexoes_noturnas')
+    const { data: ultimaReflexao, error: reflexaoError } = await supabase
+      .from('reflexoes')
       .select('*')
       .eq('ketero_id', userId)
       .order('data', { ascending: false })
       .limit(1)
       .single();
+
+    if (reflexaoError) {
+      if (reflexaoError.code === 'PGRST116' || reflexaoError.message?.includes('relation') || reflexaoError.message?.includes('does not exist')) {
+        console.error('❌ Tabela não encontrada: reflexoes. Erro:', reflexaoError.code);
+        console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+      }
+      return;
+    }
 
     if (!ultimaReflexao) return;
 
