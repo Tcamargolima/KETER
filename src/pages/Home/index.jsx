@@ -5,6 +5,7 @@ import { usePraticas } from '../../hooks/usePraticas';
 import { usePhaseProgress } from '../../hooks/usePhaseProgress';
 import { MicroAtosCard } from '../../components/features/MicroAtosCard';
 import { PhaseTransitionModal } from '../../components/features/PhaseTransitionModal';
+import RecommendedContentWidget from '../../components/features/RecommendedContentWidget';
 
 /**
  * Componente Home - Dashboard Principal
@@ -222,28 +223,9 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
         <MicroAtosCard userId={userId} />
       </div>
 
-      {/* Círculos - Community Feature */}
-      <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl shadow-md p-6 mb-8 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <MessageCircle size={24} />
-              <h3 className="text-xl font-bold">
-                Círculos 🌟
-              </h3>
-            </div>
-            <p className="text-purple-50">
-              Conecte-se com outros Keteros em círculos de conversa em tempo real
-            </p>
-          </div>
-          <button
-            onClick={() => navigate('/circulos')}
-            className="flex items-center gap-2 px-6 py-3 bg-white text-purple-600 font-bold rounded-lg hover:bg-purple-50 transition-all whitespace-nowrap"
-          >
-            Explorar
-            <ChevronRight size={20} />
-          </button>
-        </div>
+      {/* Conteúdo Educacional Recomendado */}
+      <div className="mb-8">
+        <RecommendedContentWidget userId={userId} />
       </div>
 
       {/* Link para Biblioteca */}
