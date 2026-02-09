@@ -15,7 +15,7 @@ export const useReflexoes = (userId) => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [reflexaoHoje, setReflexaoHoje] = useState(null);
   const [mostrarNotificacao, setMostrarNotificacao] = useState(false);
-  const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] = useState(false);
   const [analisando, setAnalisando] = useState(false);
   const [analiseResultado, setAnaliseResultado] = useState(null);
   const [historicoReflexoes, setHistoricoReflexoes] = useState([]);
@@ -260,7 +260,10 @@ export const useReflexoes = (userId) => {
         .order('data', { ascending: false })
         .limit(3);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao buscar reflexões para conquistas:', error);
+        return; // Não bloquear salvamento da reflexão
+      }
 
       if (!reflexoes || reflexoes.length < 3) return;
 
@@ -283,6 +286,48 @@ export const useReflexoes = (userId) => {
     } catch (error) {
       console.error('Erro ao verificar conquistas:', error);
       // Não propaga erro para não bloquear salvamento da reflexão
+    }
+  };
+
+  // ================================================
+  // Helper: Recarregar dados
+  // ================================================
+  const recarregar = async () => {
+    if (!userId || !isValidUUID(userId)) return;
+
+    try {
+      setCarregando(true);
+      setErro(null);
+      
+      const { default: supabase } = await import('../lib/supabase');
+      const hoje = new Date().toISOString().split('T')[0];
+
+      // Verificar reflexão de hoje
+      const { data: reflexaoData, error: reflexaoError } = await supabase
+        .from('reflexoes')
+        .select('*')
+        .eq('ketero_id', userId)
+        .eq('data', hoje)
+        .maybeSingle();
+
+      if (reflexaoError) throw reflexaoError;
+      setReflexaoHoje(reflexaoData || null);
+
+      // Carregar histórico
+      const { data: historicoData, error: historicoError } = await supabase
+        .from('reflexoes')
+        .select('*')
+        .eq('ketero_id', userId)
+        .order('data', { ascending: false })
+        .limit(30);
+
+      if (historicoError) throw historicoError;
+      setHistoricoReflexoes(historicoData || []);
+    } catch (err) {
+      console.error('Erro ao recarregar reflexões:', err);
+      setErro(err.message);
+    } finally {
+      setCarregando(false);
     }
   };
 
@@ -321,6 +366,7 @@ export const useReflexoes = (userId) => {
 
     // Métodos
     salvarReflexao,
+    recarregar,
   };
 };
 

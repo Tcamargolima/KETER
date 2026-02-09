@@ -15,7 +15,12 @@ import { PhaseTransitionModal } from '../../components/features/PhaseTransitionM
 
 export const Perfil = ({ user, userStats }) => {
   const [abaAtiva, setAbaAtiva] = useState('visao-geral');
-  const { historicoReflexoes, carregando: carregandoReflexoes, erro: erroReflexoes } = useReflexoes(user?.id);
+  const { 
+    historicoReflexoes, 
+    carregando: carregandoReflexoes, 
+    erro: erroReflexoes,
+    recarregar: recarregarReflexoes 
+  } = useReflexoes(user?.id);
   
   const {
     transicaoPendente,
@@ -140,7 +145,7 @@ export const Perfil = ({ user, userStats }) => {
           {abaAtiva === 'visao-geral' && <VisaoGeral userStats={userStats} />}
           {abaAtiva === 'evolucao' && <EvolucaoTab userId={user?.id} />}
           {abaAtiva === 'micro-atos' && <MicroAtosTab userId={user?.id} userStats={userStats} />}
-          {abaAtiva === 'reflexoes' && <ReflexoesTab historicoReflexoes={historicoReflexoes} carregando={carregandoReflexoes} erro={erroReflexoes} />}
+          {abaAtiva === 'reflexoes' && <ReflexoesTab historicoReflexoes={historicoReflexoes} carregando={carregandoReflexoes} erro={erroReflexoes} recarregar={recarregarReflexoes} />}
           {abaAtiva === 'conquistas' && <ConquistasTab userId={user?.id} />}
           {abaAtiva === 'configuracoes' && <ConfiguracoesTab user={user} />}
         </div>
@@ -195,7 +200,7 @@ const MicroAtosTab = ({ userId, userStats }) => {
 // ================================================
 // ABA: Reflexões
 // ================================================
-const ReflexoesTab = ({ historicoReflexoes, carregando, erro }) => {
+const ReflexoesTab = ({ historicoReflexoes, carregando, erro, recarregar }) => {
   if (carregando) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -210,7 +215,7 @@ const ReflexoesTab = ({ historicoReflexoes, carregando, erro }) => {
         <h3 className="text-red-200 font-semibold text-lg mb-2">Não foi possível carregar reflexões</h3>
         <p className="text-red-300 mb-4">{erro}</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={recarregar}
           className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
         >
           Tentar Novamente

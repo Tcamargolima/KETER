@@ -9,7 +9,7 @@ import { useMicroAtos } from '../../hooks/useMicroAtos';
 import { microAtosLibrary } from '../../data/microAtosLibrary';
 
 export const MicroAtosStatistics = ({ userId }) => {
-  const { historico, obterEstatisticas, carregando, erro } = useMicroAtos(userId);
+  const { historico, obterEstatisticas, carregando, erro, carregarDados } = useMicroAtos(userId);
   const stats = obterEstatisticas();
 
   if (carregando) {
@@ -27,7 +27,7 @@ export const MicroAtosStatistics = ({ userId }) => {
         <h3 className="text-red-800 font-semibold text-lg mb-2">Não foi possível carregar estatísticas</h3>
         <p className="text-red-600 mb-4">{erro}</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={carregarDados}
           className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
         >
           Tentar Novamente
