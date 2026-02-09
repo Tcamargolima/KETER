@@ -4,10 +4,11 @@
 // Inclui aba "Reflexões" com timeline
 
 import React, { useState, useEffect } from 'react';
-import { User, Heart, Trophy, Moon, TrendingUp, Calendar, Settings } from 'lucide-react';
+import { User, Heart, Trophy, Moon, TrendingUp, Calendar, Settings, BarChart3 } from 'lucide-react';
 import { ReflexoesTimeline } from '../../components/features/ReflexoesTimeline';
 import { MicroAtosStatistics } from '../../components/features/MicroAtosStatistics';
 import { KindnessTree } from '../../components/features/KindnessTree';
+import { EvolutionCharts } from '../../components/features/EvolutionCharts';
 import { useReflexoes } from '../../hooks/useReflexoes';
 import { usePhaseProgress } from '../../hooks/usePhaseProgress';
 import { PhaseTransitionModal } from '../../components/features/PhaseTransitionModal';
@@ -27,6 +28,7 @@ export const Perfil = ({ user, userStats }) => {
 
   const abas = [
     { id: 'visao-geral', label: 'Visão Geral', icon: User },
+    { id: 'evolucao', label: 'Evolução', icon: BarChart3 },
     { id: 'micro-atos', label: 'Micro-atos', icon: Heart },
     { id: 'reflexoes', label: 'Reflexões', icon: Moon },
     { id: 'conquistas', label: 'Conquistas', icon: Trophy },
@@ -136,6 +138,7 @@ export const Perfil = ({ user, userStats }) => {
         {/* Conteúdo das abas */}
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700">
           {abaAtiva === 'visao-geral' && <VisaoGeral userStats={userStats} />}
+          {abaAtiva === 'evolucao' && <EvolucaoTab userId={user?.id} />}
           {abaAtiva === 'micro-atos' && <MicroAtosTab userId={user?.id} userStats={userStats} />}
           {abaAtiva === 'reflexoes' && <ReflexoesTab historicoReflexoes={historicoReflexoes} />}
           {abaAtiva === 'conquistas' && <ConquistasTab userId={user?.id} />}
@@ -144,6 +147,24 @@ export const Perfil = ({ user, userStats }) => {
       </div>
     </div>
     </>
+  );
+};
+
+// ================================================
+// ABA: Evolução
+// ================================================
+const EvolucaoTab = ({ userId }) => {
+  return (
+    <div className="space-y-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">Gráficos de Evolução</h2>
+        <p className="text-slate-400">
+          Visualize seu progresso através de dados e análises
+        </p>
+      </div>
+
+      <EvolutionCharts userId={userId} />
+    </div>
   );
 };
 
