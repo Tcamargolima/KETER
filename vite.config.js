@@ -85,6 +85,39 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
               }
             }
+          },
+          // Cache para conteúdo educacional (vídeos YouTube/Vimeo)
+          {
+            urlPattern: /^https:\/\/(www\.youtube\.com|player\.vimeo\.com)\/.*$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'video-embeds-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          // Cache para áudios (Supabase Storage ou outros)
+          {
+            urlPattern: ({ request }) => 
+              request.destination === 'audio' || 
+              request.url.includes('/audio/') ||
+              request.url.match(/\.(mp3|wav|ogg)$/),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'audio-cache',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
         ],
         navigateFallback: '/index.html',

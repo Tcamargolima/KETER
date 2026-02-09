@@ -4,6 +4,7 @@ import { usePraticas } from '../../hooks/usePraticas';
 import { usePhaseProgress } from '../../hooks/usePhaseProgress';
 import { MicroAtosCard } from '../../components/features/MicroAtosCard';
 import { PhaseTransitionModal } from '../../components/features/PhaseTransitionModal';
+import RecommendedContentWidget from '../../components/features/RecommendedContentWidget';
 
 /**
  * Componente Home - Dashboard Principal
@@ -218,6 +219,11 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
       {/* Micro-ato do Dia */}
       <div className="mb-8">
         <MicroAtosCard userId={userId} />
+      </div>
+
+      {/* Conteúdo Educacional Recomendado */}
+      <div className="mb-8">
+        <RecommendedContentWidget userId={userId} />
       </div>
 
       {/* Link para Biblioteca */}
