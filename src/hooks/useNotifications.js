@@ -95,16 +95,12 @@ export const useNotifications = (userId) => {
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
-          // Atualizar notificação existente
-          setNotifications(prev => 
-            prev.map(n => n.id === payload.new.id ? payload.new : n)
-          );
-          
-          // Recalcular unread count
-          setNotifications(currentNotifs => {
-            const unread = currentNotifs.filter(n => !n.read).length;
+          // Atualizar notificação existente e recalcular unread count
+          setNotifications(prev => {
+            const updated = prev.map(n => n.id === payload.new.id ? payload.new : n);
+            const unread = updated.filter(n => !n.read).length;
             setUnreadCount(unread);
-            return currentNotifs;
+            return updated;
           });
         }
       )

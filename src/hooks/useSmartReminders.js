@@ -8,8 +8,7 @@
 // - Comportamento do usuário
 
 import { useEffect, useCallback, useRef } from 'react';
-import { supabase } from '../lib/supabase';
-import { createNotification } from '../lib/supabase';
+import { supabase, createNotification } from '../lib/supabase';
 
 /**
  * Hook para gerenciar lembretes inteligentes
