@@ -3,16 +3,27 @@
 // ================================================
 // Inclui aba "Reflexões" com timeline
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Heart, Trophy, Moon, TrendingUp, Calendar, Settings } from 'lucide-react';
 import { ReflexoesTimeline } from '../../components/features/ReflexoesTimeline';
 import { MicroAtosStatistics } from '../../components/features/MicroAtosStatistics';
 import { KindnessTree } from '../../components/features/KindnessTree';
 import { useReflexoes } from '../../hooks/useReflexoes';
+import { usePhaseProgress } from '../../hooks/usePhaseProgress';
+import { PhaseTransitionModal } from '../../components/features/PhaseTransitionModal';
 
 export const Perfil = ({ user, userStats }) => {
   const [abaAtiva, setAbaAtiva] = useState('visao-geral');
   const { historicoReflexoes } = useReflexoes(user?.id);
+  
+  const {
+    transicaoPendente,
+    mensagemIA,
+    conquistasDesbloqueadas,
+    marcarTransicaoVista
+  } = usePhaseProgress();
+
+  const [showTransitionModal, setShowTransitionModal] = useState(false);
 
   const abas = [
     { id: 'visao-geral', label: 'Visão Geral', icon: User },
@@ -22,8 +33,34 @@ export const Perfil = ({ user, userStats }) => {
     { id: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
 
+  // Verificar transição pendente ao carregar
+  useEffect(() => {
+    if (transicaoPendente && !showTransitionModal) {
+      setShowTransitionModal(true);
+    }
+  }, [transicaoPendente]);
+
+  // Handler para fechar modal de transição
+  const handleCloseTransitionModal = async () => {
+    if (transicaoPendente) {
+      await marcarTransicaoVista(transicaoPendente.id);
+    }
+    setShowTransitionModal(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+    <>
+      {/* Modal de Transição de Fase */}
+      <PhaseTransitionModal
+        isOpen={showTransitionModal}
+        onClose={handleCloseTransitionModal}
+        transicao={transicaoPendente}
+        mensagemIA={mensagemIA}
+        conquistasDesbloqueadas={conquistasDesbloqueadas}
+        onContinuar={handleCloseTransitionModal}
+      />
+
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header do Perfil */}
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 mb-6 border border-slate-700">
@@ -106,6 +143,7 @@ export const Perfil = ({ user, userStats }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

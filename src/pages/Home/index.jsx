@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Calendar, Clock, TrendingUp, BookOpen, Play, ChevronRight } from 'lucide-react';
 import { usePraticas } from '../../hooks/usePraticas';
+import { usePhaseProgress } from '../../hooks/usePhaseProgress';
 import { MicroAtosCard } from '../../components/features/MicroAtosCard';
+import { PhaseTransitionModal } from '../../components/features/PhaseTransitionModal';
 
 /**
  * Componente Home - Dashboard Principal
@@ -15,9 +17,25 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
     carregando
   } = usePraticas(userId);
 
+  const {
+    transicaoPendente,
+    mensagemIA,
+    conquistasDesbloqueadas,
+    marcarTransicaoVista,
+    verificarETransitar
+  } = usePhaseProgress();
+
   const [praticaRecomendada, setPraticaRecomendada] = useState(null);
   const [estatisticas, setEstatisticas] = useState(null);
   const [carregandoRecomendacao, setCarregandoRecomendacao] = useState(true);
+  const [showTransitionModal, setShowTransitionModal] = useState(false);
+
+  // Verificar transição pendente ao carregar
+  useEffect(() => {
+    if (transicaoPendente && !showTransitionModal) {
+      setShowTransitionModal(true);
+    }
+  }, [transicaoPendente]);
 
   // Carregar recomendação e estatísticas
   useEffect(() => {
@@ -25,6 +43,9 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
 
     const carregarDados = async () => {
       setCarregandoRecomendacao(true);
+
+      // Verificar se há transição disponível
+      await verificarETransitar();
 
       // Buscar prática recomendada
       const { data: pratica } = await recomendarProximaPratica();
@@ -40,6 +61,14 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
     carregarDados();
   }, [userId]);
 
+  // Handler para fechar modal de transição
+  const handleCloseTransitionModal = async () => {
+    if (transicaoPendente) {
+      await marcarTransicaoVista(transicaoPendente.id);
+    }
+    setShowTransitionModal(false);
+  };
+
   // Loading
   if (carregando || carregandoRecomendacao) {
     return (
@@ -50,7 +79,18 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <>
+      {/* Modal de Transição de Fase */}
+      <PhaseTransitionModal
+        isOpen={showTransitionModal}
+        onClose={handleCloseTransitionModal}
+        transicao={transicaoPendente}
+        mensagemIA={mensagemIA}
+        conquistasDesbloqueadas={conquistasDesbloqueadas}
+        onContinuar={handleCloseTransitionModal}
+      />
+
+      <div className="max-w-7xl mx-auto p-6">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -201,6 +241,7 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
