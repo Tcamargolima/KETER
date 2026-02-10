@@ -173,6 +173,11 @@ Acesse http://localhost:5173
 
 O KETER está otimizado para deploy no **Vercel** (frontend) + **Supabase** (backend/database).
 
+> 📚 **Documentação Completa de Deploy:**
+> - [Guia Completo de Deploy](./DEPLOY-GUIDE.md) - Passo a passo detalhado
+> - [Referência Rápida](./DEPLOY-QUICK-REFERENCE.md) - Quick start em 10 minutos
+> - [Resumo da Correção 07](./CORRECAO-07-SUMMARY.md) - O que foi implementado
+
 #### Pré-requisitos de Deploy
 
 - Conta no [Vercel](https://vercel.com) (gratuita)
@@ -183,20 +188,18 @@ O KETER está otimizado para deploy no **Vercel** (frontend) + **Supabase** (bac
 #### Passo 1: Preparar Supabase
 
 1. **Criar projeto em produção** no Supabase
-2. **Executar migrations**: 
+2. **Executar schema de produção**: 
    - Vá em SQL Editor
-   - Execute `database/schema.sql`
-   - Execute migrations adicionais se houver
+   - Execute `database/schema.sql` (schema consolidado de produção)
+   - Execute `database/rls-policies-production.sql` (políticas de segurança)
 3. **Configurar Row Level Security (RLS)**:
    - Verifique que todas as tabelas têm RLS ENABLED
    - Confirme policies de segurança
-   - Dashboard → Authentication → Policies
+   - Dashboard → Database → Tables (todas devem mostrar RLS: enabled)
 4. **Seed inicial** (opcional):
    ```bash
-   # Localmente, com credenciais de produção
-   VITE_SUPABASE_URL=https://seu-projeto.supabase.co \
-   SUPABASE_SERVICE_KEY=sua_service_role_key \
-   npm run db:seed-prod
+   # Execute no SQL Editor do Supabase:
+   # database/seed-praticas.sql (se necessário)
    ```
 
 #### Passo 2: Deploy no Vercel
