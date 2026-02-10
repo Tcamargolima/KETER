@@ -3,10 +3,10 @@ import { Play, Pause, RotateCcw } from 'lucide-react'
 import Button from '@/components/ui/Button'
 
 export default function PracticeTimer({ 
-  duration = 180, // duração em segundos
+  durationInSeconds = 180, // duração em segundos
   onComplete 
 }) {
-  const [timeLeft, setTimeLeft] = useState(duration)
+  const [timeLeft, setTimeLeft] = useState(durationInSeconds)
   const [isRunning, setIsRunning] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const intervalRef = useRef(null)
@@ -44,7 +44,7 @@ export default function PracticeTimer({
 
   const resetTimer = () => {
     setIsRunning(false)
-    setTimeLeft(duration)
+    setTimeLeft(durationInSeconds)
     setIsCompleted(false)
   }
 
@@ -55,7 +55,7 @@ export default function PracticeTimer({
   }
 
   // Calcular progresso (0 a 1)
-  const progress = 1 - (timeLeft / duration)
+  const progress = 1 - (timeLeft / durationInSeconds)
   const strokeDashoffset = 440 - (440 * progress) // 440 é a circunferência
 
   return (

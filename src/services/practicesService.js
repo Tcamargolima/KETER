@@ -85,22 +85,28 @@ export const practicesService = {
   // Atualizar estatísticas do usuário
   async updateUserStats(userId) {
     try {
-      // Calcular streak
-      const { data: completions } = await supabase
+      // Buscar últimas 30 completions para calcular streak
+      const { data: recentCompletions } = await supabase
         .from('praticas_completadas')
         .select('completado_em')
         .eq('user_id', userId)
         .order('completado_em', { ascending: false })
         .limit(30)
 
-      const streak = this.calculateStreak(completions)
+      const streak = this.calculateStreak(recentCompletions)
+
+      // Buscar total de práticas completadas
+      const { count: totalPraticas } = await supabase
+        .from('praticas_completadas')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
 
       // Atualizar perfil
       await supabase
         .from('profiles')
         .update({
           streak_atual: streak,
-          total_praticas: completions.length,
+          total_praticas: totalPraticas || 0,
           updated_at: new Date().toISOString()
         })
         .eq('id', userId)

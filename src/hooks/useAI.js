@@ -55,8 +55,10 @@ export function useAI() {
 
     try {
       const response = await safeAICall(async (ai) => {
+        // Using gpt-3.5-turbo for cost efficiency
+        // Can be upgraded to gpt-4 if more sophisticated analysis is needed
         const completion = await ai.chat.completions.create({
-          model: 'gpt-4',
+          model: 'gpt-3.5-turbo',
           messages: [
             {
               role: 'system',
