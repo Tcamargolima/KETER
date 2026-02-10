@@ -9,17 +9,18 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Debug obrigatório para deploy
-console.log('[Supabase Debug] VITE_SUPABASE_URL:', supabaseUrl);
-console.log('[Supabase Debug] VITE_SUPABASE_ANON_KEY presente?', !!supabaseAnonKey);
+// Debug apenas em desenvolvimento
+if (import.meta.env.DEV) {
+  console.log('[Supabase Debug] URL configurada:', !!supabaseUrl);
+  console.log('[Supabase Debug] Anon key configurada:', !!supabaseAnonKey);
+}
 
 if (!supabaseUrl || supabaseUrl === 'YOUR_SUPABASE_URL') {
-  console.error('[Supabase Error] URL inválida ou não carregada. Valor atual:', supabaseUrl);
-  // Não throw ainda, para não crashar o app inteiro, mas logar
+  console.error('[Supabase Error] URL inválida ou não configurada');
 }
 
 if (!supabaseAnonKey) {
-  console.error('[Supabase Error] Anon key ausente!');
+  console.error('[Supabase Error] Anon key ausente');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

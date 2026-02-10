@@ -6,15 +6,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth, useKetero, useReflexoes } from './useAuth';
 import {
-  chatWithGuia as chatIA,
-  gerarAnaliseSemanal,
   analisarPadroesLinguisticos,
-  detectarCrise,
-  recomendarPratica,
   getCached,
   setCache
 } from '../lib/openai';
-import { salvarConversaGuia, salvarAnaliseIA } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 // ================================================
 // USE GUIA INTELIGENTE (Chat com IA)
@@ -54,22 +50,6 @@ export const useGuiaInteligente = () => {
     setError(null);
 
     try {
-      // Verificar se é uma crise
-      const crise = await detectarCrise(mensagem);
-      
-      if (crise.crise_detectada && crise.nivel === 'critico') {
-        // Resposta especial para crise
-        const respostaCrise = {
-          role: 'assistant',
-          content: crise.recomendacao,
-          timestamp: Date.now(),
-          tipo: 'crise'
-        };
-        setMensagens(prev => [...prev, respostaCrise]);
-        setIsTyping(false);
-        return;
-      }
-
       // Preparar contexto
       const contexto = {
         nome: profile?.nome,
@@ -95,40 +75,41 @@ export const useGuiaInteligente = () => {
         content: m.content
       }));
 
-      // Chamar IA
-      const { resposta, tokensUsados, error } = await chatIA(
-        mensagem,
-        contexto,
-        historico
-      );
+      // Call Edge Function instead of direct OpenAI
+      const { data, error: funcError } = await supabase.functions.invoke('chat-ia', {
+        body: { 
+          mensagem,
+          contexto,
+          historico
+        }
+      });
 
-      if (error) {
-        throw new Error(error);
+      if (funcError) {
+        throw new Error(funcError.message || 'Failed to get AI response');
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'AI response failed');
       }
 
       // Adicionar resposta da IA
       const novaMsgIA = {
         role: 'assistant',
-        content: resposta,
+        content: data.resposta,
         timestamp: Date.now(),
-        tokens: tokensUsados
+        tokens: data.tokensUsados
       };
       setMensagens(prev => [...prev, novaMsgIA]);
 
-      // Salvar no banco (assíncrono, não bloqueia)
-      salvarConversaGuia(user.id, mensagem, resposta, {
-        tokens: tokensUsados,
-        ...contexto
-      }).catch(err => console.error('Erro ao salvar conversa:', err));
-
     } catch (err) {
       console.error('Erro no chat:', err);
-      setError('Desculpe, tive um problema. Tente novamente.');
+      const errorMsg = err.message || 'Desculpe, tive um problema. Tente novamente.';
+      setError(errorMsg);
       
       // Mensagem de erro amigável
       setMensagens(prev => [...prev, {
         role: 'assistant',
-        content: 'Desculpe, tive um problema ao processar sua mensagem. Pode tentar novamente?',
+        content: errorMsg.includes('limit') ? errorMsg : 'Desculpe, tive um problema ao processar sua mensagem. Pode tentar novamente?',
         timestamp: Date.now(),
         erro: true
       }]);

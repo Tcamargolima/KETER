@@ -2,13 +2,15 @@ import OpenAI from 'openai'
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY
 
-if (!apiKey) {
-  console.warn('⚠️ OpenAI API key is missing! AI features will be disabled')
+// Note: In production, OpenAI calls are handled by Supabase Edge Functions
+// This client is only used as fallback for local development
+if (!apiKey && import.meta.env.DEV) {
+  console.warn('⚠️ OpenAI API key is missing! AI features will use backend Edge Functions.')
 }
 
 export const openai = apiKey ? new OpenAI({
   apiKey,
-  dangerouslyAllowBrowser: true // Apenas para dev, mover para backend em produção
+  dangerouslyAllowBrowser: true // Only for development - production uses Edge Functions
 }) : null
 
 // Helper para verificar se IA está disponível
