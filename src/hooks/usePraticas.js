@@ -73,7 +73,7 @@ export const usePraticas = (userId) => {
           .from('keteros')
           .select('fase_atual')
           .eq('id', userId)
-          .single();
+          .maybeSingle();
 
         if (!error && data) {
           setFaseAtual(data.fase_atual || 1);
@@ -117,7 +117,7 @@ export const usePraticas = (userId) => {
         .from('praticas')
         .select('*')
         .eq('id', praticaId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
@@ -184,7 +184,11 @@ export const usePraticas = (userId) => {
       const praticasFase = obterPraticasDaFase(faseAtual);
       
       if (praticasFase.length === 0) {
-        return { data: null, error: 'Nenhuma prática disponível para esta fase' };
+        console.warn('Nenhuma prática disponível para fase', faseAtual);
+        return { 
+          data: null, 
+          error: 'Nenhuma prática cadastrada para esta fase. Adicione práticas na biblioteca!' 
+        };
       }
 
       // 2. Obter histórico recente
