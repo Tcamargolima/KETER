@@ -22,7 +22,7 @@ export default defineConfig({
 
   // Otimizações de build
   build: {
-    sourcemap: true,
+    sourcemap: process.env.NODE_ENV === 'development',
     rollupOptions: {
       output: {
         manualChunks: {
