@@ -96,6 +96,12 @@ export const usePhaseProgress = () => {
 
       if (keteroError) {
         console.error('Erro ao buscar dados do ketero:', keteroError);
+        
+        // Handle table not found
+        if (keteroError.code === 'PGRST116' || keteroError.message?.includes('relation') || keteroError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: keteros. Erro:', keteroError.code, keteroError.message);
+          console.error('💡 Crie a tabela "keteros" no Supabase usando o arquivo supabase-schema.sql');
+        }
         throw keteroError;
       }
 
@@ -111,6 +117,12 @@ export const usePhaseProgress = () => {
 
       if (conquistasError) {
         console.error('Erro ao buscar conquistas:', conquistasError);
+        
+        // Handle table not found
+        if (conquistasError.code === 'PGRST116' || conquistasError.message?.includes('relation') || conquistasError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: keteros_conquistas. Erro:', conquistasError.code, conquistasError.message);
+          console.error('💡 Crie a tabela "keteros_conquistas" no Supabase usando o arquivo supabase-schema.sql');
+        }
       }
 
       const totalConquistas = conquistasData?.length || 0;
@@ -123,6 +135,12 @@ export const usePhaseProgress = () => {
 
       if (reflexoesError) {
         console.error('Erro ao contar reflexões:', reflexoesError);
+        
+        // Handle table not found
+        if (reflexoesError.code === 'PGRST116' || reflexoesError.message?.includes('relation') || reflexoesError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: reflexoes. Erro:', reflexoesError.code, reflexoesError.message);
+          console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+        }
       }
 
       // Atualizar progresso com defaults para valores ausentes
@@ -164,6 +182,12 @@ export const usePhaseProgress = () => {
 
       if (transicaoError && transicaoError.code !== 'PGRST116') {
         console.error('Erro ao buscar transição:', transicaoError);
+        
+        // Handle table not found
+        if (transicaoError.message?.includes('relation') || transicaoError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: transicoes_fase. Erro:', transicaoError.code, transicaoError.message);
+          console.error('💡 Crie a tabela "transicoes_fase" no Supabase usando o arquivo supabase-schema.sql');
+        }
       }
 
       if (transicaoData) {

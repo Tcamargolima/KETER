@@ -53,7 +53,15 @@ export const useReflexoes = (userId) => {
           .eq('data', hoje)
           .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao verificar reflexão:', error);
+          
+          if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+            console.error('❌ Tabela não encontrada: reflexoes. Erro:', error.code, error.message);
+            console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+          }
+          throw error;
+        }
 
         setReflexaoHoje(data || null);
       } catch (err) {
@@ -119,7 +127,15 @@ export const useReflexoes = (userId) => {
           .order('data', { ascending: false })
           .limit(30);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao carregar histórico:', error);
+          
+          if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+            console.error('❌ Tabela não encontrada: reflexoes. Erro:', error.code, error.message);
+            console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+          }
+          throw error;
+        }
 
         setHistoricoReflexoes(data || []);
       } catch (err) {
@@ -313,7 +329,15 @@ export const useReflexoes = (userId) => {
         .eq('data', hoje)
         .maybeSingle();
 
-      if (reflexaoError) throw reflexaoError;
+      if (reflexaoError) {
+        console.error('Erro ao verificar reflexão:', reflexaoError);
+        
+        if (reflexaoError.code === 'PGRST116' || reflexaoError.message?.includes('relation') || reflexaoError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: reflexoes. Erro:', reflexaoError.code, reflexaoError.message);
+          console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+        }
+        throw reflexaoError;
+      }
       setReflexaoHoje(reflexaoData || null);
 
       // Carregar histórico
@@ -324,7 +348,15 @@ export const useReflexoes = (userId) => {
         .order('data', { ascending: false })
         .limit(30);
 
-      if (historicoError) throw historicoError;
+      if (historicoError) {
+        console.error('Erro ao carregar histórico:', historicoError);
+        
+        if (historicoError.code === 'PGRST116' || historicoError.message?.includes('relation') || historicoError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: reflexoes. Erro:', historicoError.code, historicoError.message);
+          console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
+        }
+        throw historicoError;
+      }
       setHistoricoReflexoes(historicoData || []);
     } catch (err) {
       console.error('Erro ao recarregar reflexões:', err);

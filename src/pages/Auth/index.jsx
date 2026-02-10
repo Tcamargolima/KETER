@@ -22,15 +22,22 @@ const AuthPage = () => {
 
     try {
       if (mode === 'login') {
-        const { error } = await signIn(email, password);
-        if (error) throw error;
+        const { data, error } = await signIn(email, password);
+        if (error) {
+          // Use friendly message if available
+          const errorMsg = error.friendlyMessage || error.message || 'Erro ao fazer login. Tente novamente.';
+          throw new Error(errorMsg);
+        }
         // Session will be automatically handled by useSession hook in App.jsx
       } else {
-        const { error } = await signUp(email, password, nome);
-        if (error) throw error;
+        const { data, error } = await signUp(email, password, nome);
+        if (error) {
+          throw new Error(error.message || 'Erro ao criar conta. Tente novamente.');
+        }
         setMessage('Conta criada com sucesso! Verifique seu email para confirmar.');
       }
     } catch (err) {
+      console.error('Erro na autenticação:', err);
       setError(err.message || 'Erro ao autenticar. Tente novamente.');
     } finally {
       setLoading(false);
