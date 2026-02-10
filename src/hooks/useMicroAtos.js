@@ -50,9 +50,12 @@ export const useMicroAtos = (userId) => {
         .from('keteros')
         .select('fase_atual')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (keteroError) throw keteroError;
+      if (keteroError) {
+        console.error('Erro ao carregar fase do ketero:', keteroError);
+        throw keteroError;
+      }
       setFaseAtual(ketero?.fase_atual || 1);
 
       // Carregar histórico de micro-atos
@@ -97,6 +100,7 @@ export const useMicroAtos = (userId) => {
         .maybeSingle();
 
       if (erroExistente && erroExistente.code !== 'PGRST116') {
+        console.error('Erro ao buscar micro-ato existente:', erroExistente);
         throw erroExistente;
       }
 
@@ -121,11 +125,14 @@ export const useMicroAtos = (userId) => {
           }
         ])
         .select()
-        .single();
+        .maybeSingle();
 
-      if (erroNovo) throw erroNovo;
+      if (erroNovo) {
+        console.error('Erro ao criar novo micro-ato:', erroNovo);
+        throw erroNovo;
+      }
 
-      setMicroAtoAtual(novoMicroAto);
+      setMicroAtoAtual(novoMicroAto || null);
       return novoMicroAto;
     } catch (err) {
       console.error('Erro ao carregar micro-ato do dia:', err);
@@ -160,9 +167,12 @@ export const useMicroAtos = (userId) => {
         })
         .eq('id', microAtoAtual.id)
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao trocar micro-ato:', error);
+        throw error;
+      }
 
       setMicroAtoAtual(data);
       return { data, error: null };
@@ -194,9 +204,12 @@ export const useMicroAtos = (userId) => {
         })
         .eq('id', microAtoAtual.id)
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao atualizar micro-ato:', error);
+        throw error;
+      }
 
       // Atualizar contadores do usuário
       const { error: updateError } = await supabase.rpc('increment_micro_atos', {
@@ -249,9 +262,12 @@ export const useMicroAtos = (userId) => {
           })
           .eq('id', microAtoAtual.id)
           .select()
-          .single();
+          .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao atualizar micro-ato customizado:', error);
+          throw error;
+        }
         setMicroAtoAtual(data);
         return { data, error: null };
       }
@@ -269,9 +285,12 @@ export const useMicroAtos = (userId) => {
           }
         ])
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao criar micro-ato customizado:', error);
+        throw error;
+      }
 
       setMicroAtoAtual(data);
       return { data, error: null };

@@ -45,7 +45,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export const signUp = async (email, password, nome) => {
   try {
     // Constantes para retry
-    const MAX_RETRIES = 3;
+    const MAX_RETRIES = 8;
     const RETRY_DELAY_MS = 2000;
 
     // 1. Criar usuário no Supabase Auth
@@ -93,14 +93,13 @@ export const signUp = async (email, password, nome) => {
 
         // Se chegou aqui, todas as tentativas falharam
         console.error('❌ Falha após', maxRetries, 'tentativas. Schema cache não atualizado.');
-        console.error('💡 Solução: Execute NOTIFY pgrst, "reload schema"; no Supabase SQL Editor');
-        console.error('💡 Ou reinicie o projeto: Dashboard > Settings > General > Restart project');
-        throw new Error('Falha após múltiplas tentativas: schema cache não atualizado. Execute NOTIFY pgrst, "reload schema"; no Supabase SQL Editor ou reinicie o projeto no Dashboard.');
+        console.error('💡 Solução: Vá ao Supabase Dashboard > Settings > Restart project, depois rode NOTIFY pgrst, \'reload schema\'; 5x no SQL Editor');
+        throw new Error('Cache do banco desatualizado. Vá ao Supabase Dashboard > Settings > Restart project, depois rode NOTIFY pgrst, \'reload schema\'; 5x no SQL Editor.');
       };
 
       // Executar insert com retry
       await insertProfileWithRetry({
-        id: authData.user.id,
+        user_id: authData.user.id,
         email: email,
         nome: nome,
         created_at: new Date().toISOString()
@@ -220,7 +219,7 @@ export const getKeteroProfile = async (userId) => {
       .from('keteros')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return { data, error: null };
@@ -243,7 +242,7 @@ export const updateKeteroProfile = async (userId, updates) => {
       })
       .eq('id', userId)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return { data, error: null };
@@ -267,7 +266,7 @@ export const saveAvaliacaoInicial = async (userId, avaliacao) => {
         }
       ])
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return { data, error: null };
@@ -352,7 +351,7 @@ export const salvarReflexao = async (userId, reflexao) => {
         onConflict: 'ketero_id,data'
       })
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
@@ -507,7 +506,7 @@ export const salvarConversaGuia = async (userId, mensagem, resposta, contexto = 
         }
       ])
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return { data, error: null };
@@ -585,7 +584,7 @@ export const getPraticaById = async (praticaId) => {
       .from('praticas')
       .select('*')
       .eq('id', praticaId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
@@ -716,7 +715,7 @@ export const createNotification = async (userId, { type, title, body, data = {} 
         }
       ])
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return { data: notification, error: null };
@@ -874,7 +873,7 @@ export const createCirculo = async (userId, circuloData) => {
         }
       ])
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return { data, error: null };
@@ -899,7 +898,7 @@ export const joinCirculo = async (userId, circuloId) => {
         }
       ])
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return { data, error: null };
@@ -975,7 +974,7 @@ export const sendCirculoMensagem = async (userId, circuloId, mensagem, anonimo =
         *,
         keteros(id, nome, foto_url)
       `)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return { data, error: null };

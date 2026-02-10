@@ -192,9 +192,12 @@ export const useReflexoes = (userId) => {
           ignoreDuplicates: false
         })
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao salvar reflexão:', error);
+        throw error;
+      }
 
       // Atualizar contador de reflexões
       await supabase.rpc('increment_reflexoes', { p_user_id: userId });

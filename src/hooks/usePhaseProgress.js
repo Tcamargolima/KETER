@@ -86,21 +86,22 @@ export const usePhaseProgress = () => {
         .from('keteros')
         .select(`
           fase_atual,
-          fase_nome,
           dia_na_fase,
           total_praticas,
-          total_reflexoes,
-          total_micro_atos,
           sequencia_atual,
-          sequencia_maxima,
-          data_inicio_fase
+          sequencia_maxima
         `)
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (keteroError) throw keteroError;
+      if (keteroError) {
+        console.error('Erro ao buscar dados do ketero:', keteroError);
+        throw keteroError;
+      }
 
-      setFaseAtual(keteroData.fase_atual);
+      // Tratar data null com defaults
+      const faseAtualValue = keteroData?.fase_atual ?? 1;
+      setFaseAtual(faseAtualValue);
       
       // Contar conquistas
       const { data: conquistasData, error: conquistasError } = await supabase
@@ -114,26 +115,34 @@ export const usePhaseProgress = () => {
 
       const totalConquistas = conquistasData?.length || 0;
 
-      // Atualizar progresso
+      // Contar reflexões manualmente (já que campo não existe em keteros)
+      const { data: reflexoesData, error: reflexoesError } = await supabase
+        .from('reflexoes')
+        .select('id', { count: 'exact', head: true })
+        .eq('ketero_id', user.id);
+
+      const totalReflexoes = reflexoesError ? 0 : (reflexoesData?.length || 0);
+
+      // Atualizar progresso com defaults para valores ausentes
       setProgresso({
-        dias: keteroData.dia_na_fase || 0,
-        praticas: keteroData.total_praticas || 0,
-        reflexoes: keteroData.total_reflexoes || 0,
-        streak: keteroData.sequencia_atual || 0,
+        dias: keteroData?.dia_na_fase || 0,
+        praticas: keteroData?.total_praticas || 0,
+        reflexoes: totalReflexoes,
+        streak: keteroData?.sequencia_atual || 0,
         conquistas: totalConquistas
       });
 
       // Buscar critérios da fase atual
-      const criteriosFase = FASE_CRITERIOS[keteroData.fase_atual];
+      const criteriosFase = FASE_CRITERIOS[faseAtualValue];
       setCriterios(criteriosFase);
 
       // Verificar se pode transitar
-      if (keteroData.fase_atual < 4 && criteriosFase) {
+      if (faseAtualValue < 4 && criteriosFase) {
         const pode = 
-          keteroData.dia_na_fase >= criteriosFase.diasMinimos &&
-          keteroData.total_praticas >= criteriosFase.praticasMinimas &&
-          keteroData.total_reflexoes >= criteriosFase.reflexoesMinimas &&
-          keteroData.sequencia_maxima >= criteriosFase.streakMinimo &&
+          (keteroData?.dia_na_fase || 0) >= criteriosFase.diasMinimos &&
+          (keteroData?.total_praticas || 0) >= criteriosFase.praticasMinimas &&
+          totalReflexoes >= criteriosFase.reflexoesMinimas &&
+          (keteroData?.sequencia_maxima || 0) >= criteriosFase.streakMinimo &&
           totalConquistas >= criteriosFase.conquistasMinimas;
 
         setPodeTransitar(pode);
@@ -149,7 +158,7 @@ export const usePhaseProgress = () => {
         .eq('animacao_vista', false)
         .order('data_transicao', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (transicaoError && transicaoError.code !== 'PGRST116') {
         console.error('Erro ao buscar transição:', transicaoError);
@@ -195,9 +204,9 @@ export const usePhaseProgress = () => {
       // Buscar dados do usuário
       const { data: userData } = await supabase
         .from('keteros')
-        .select('nome, fase_nome')
+        .select('nome, fase_atual')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       const nomeUsuario = userData?.nome || 'Ketero';
       const faseNova = getFaseNome(transicao.fase_nova);
