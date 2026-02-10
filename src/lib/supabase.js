@@ -44,8 +44,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
  */
 export const signUp = async (email, password, nome) => {
   try {
-    // Constantes para retry
-    const MAX_RETRIES = 8;
+    // Constantes para retry (configurável via env)
+    const MAX_RETRIES = parseInt(import.meta.env.VITE_SIGNUP_MAX_RETRIES || '8', 10);
     const RETRY_DELAY_MS = 2000;
 
     // 1. Criar usuário no Supabase Auth
@@ -93,8 +93,8 @@ export const signUp = async (email, password, nome) => {
 
         // Se chegou aqui, todas as tentativas falharam
         console.error('❌ Falha após', maxRetries, 'tentativas. Schema cache não atualizado.');
-        console.error('💡 Solução: Vá ao Supabase Dashboard > Settings > Restart project, depois rode NOTIFY pgrst, \'reload schema\'; no SQL Editor');
-        throw new Error('Cache do banco desatualizado. Vá ao Supabase Dashboard > Settings > Restart project, depois rode NOTIFY pgrst, \'reload schema\'; no SQL Editor.');
+        console.error('💡 [Sistema] Execute NOTIFY pgrst, \'reload schema\'; no Supabase SQL Editor ou reinicie o projeto');
+        throw new Error('Não foi possível completar o cadastro neste momento. Por favor, tente novamente em alguns instantes.');
       };
 
       // Executar insert com retry

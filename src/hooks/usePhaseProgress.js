@@ -118,7 +118,7 @@ export const usePhaseProgress = () => {
       // Contar reflexões manualmente (já que campo não existe em keteros)
       const { count: totalReflexoes, error: reflexoesError } = await supabase
         .from('reflexoes')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('ketero_id', user.id);
 
       if (reflexoesError) {
@@ -203,10 +203,10 @@ export const usePhaseProgress = () => {
   // Gerar mensagem da IA
   const gerarMensagemIA = async (transicao) => {
     try {
-      // Buscar dados do usuário
+      // Buscar nome do usuário
       const { data: userData } = await supabase
         .from('keteros')
-        .select('nome, fase_atual')
+        .select('nome')
         .eq('id', user.id)
         .maybeSingle();
 
