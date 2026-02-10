@@ -25,8 +25,8 @@ const RecommendedContentWidget = ({ userId }) => {
 
   if (carregando) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="animate-pulse flex space-x-4">
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 min-h-[300px] flex items-center justify-center">
+        <div className="animate-pulse flex space-x-4 w-full">
           <div className="flex-1 space-y-4 py-1">
             <div className="h-4 bg-gray-200 rounded w-3/4"></div>
             <div className="space-y-2">
@@ -50,22 +50,22 @@ const RecommendedContentWidget = ({ userId }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-purple-50 to-amber-50 rounded-xl shadow-md p-6 border border-purple-100"
+      className="bg-gradient-to-br from-purple-50 to-amber-50 rounded-xl shadow-md p-4 sm:p-6 border border-purple-100 min-h-[300px] flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles size={24} className="text-purple-600" />
-        <h3 className="text-xl font-bold text-gray-900">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <Sparkles size={20} className="text-purple-600 flex-shrink-0" />
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900">
           Conteúdo Sugerido para Sua Fase
         </h3>
       </div>
 
-      <p className="text-gray-600 mb-6">
+      <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
         Com base na sua evolução e reflexões recentes, recomendamos:
       </p>
 
       {/* Lista de Recomendações */}
-      <div className="space-y-4 mb-6">
+      <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6 flex-1">
         {topRecommendations.map((conteudo, idx) => (
           <motion.div
             key={conteudo.id}
@@ -104,7 +104,7 @@ const RecommendedContentWidget = ({ userId }) => {
       {/* Botão Ver Mais */}
       <button
         onClick={() => navigate('/sabedoria')}
-        className="w-full bg-gradient-to-r from-purple-600 to-amber-600 text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2"
+        className="w-full bg-gradient-to-r from-purple-600 to-amber-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
       >
         Ver Biblioteca Completa
         <ChevronRight size={20} />

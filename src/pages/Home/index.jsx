@@ -121,19 +121,19 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
         onContinuar={handleCloseTransitionModal}
       />
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
           Bem-vindo de volta! ✨
         </h1>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600">
           Você está na Fase {faseAtual} da sua jornada KETER
         </p>
       </div>
 
       {/* Prática Recomendada */}
-      <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl shadow-xl p-8 mb-8 text-white">
+      <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl shadow-xl p-6 sm:p-8 mb-6 sm:mb-8 text-white min-h-[300px] flex flex-col justify-center">
         <div className="flex items-center gap-2 mb-4">
           <Sparkles size={24} className="text-yellow-300" />
           <h2 className="text-2xl font-bold">Próxima Prática Recomendada</h2>
@@ -145,18 +145,18 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
               <h3 className="text-3xl font-bold mb-2">{praticaRecomendada.titulo}</h3>
               <p className="text-purple-100 text-lg mb-4">{praticaRecomendada.subtitulo}</p>
               
-              <div className="flex items-center gap-4 text-sm mb-6">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm mb-6">
                 <div className="flex items-center gap-2 bg-white/20 px-3 py-2 rounded-lg">
                   <Clock size={18} />
-                  <span>{praticaRecomendada.duracao_min} minutos</span>
+                  <span className="text-xs sm:text-sm">{praticaRecomendada.duracao_min} minutos</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/20 px-3 py-2 rounded-lg">
                   <BookOpen size={18} />
-                  <span>{praticaRecomendada.categoria}</span>
+                  <span className="text-xs sm:text-sm">{praticaRecomendada.categoria}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/20 px-3 py-2 rounded-lg">
                   <TrendingUp size={18} />
-                  <span>{praticaRecomendada.dificuldade}</span>
+                  <span className="text-xs sm:text-sm">{praticaRecomendada.dificuldade}</span>
                 </div>
               </div>
 
@@ -200,7 +200,7 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
             </button>
           </div>
         ) : (
-          <div className="text-center py-8">
+          <div className="text-center py-8 min-h-[200px] flex flex-col items-center justify-center">
             <p className="text-purple-100 mb-4">
               Não foi possível carregar uma recomendação no momento.
             </p>
@@ -216,7 +216,7 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
 
       {/* Estatísticas */}
       {estatisticas && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Total de Práticas */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between mb-4">
@@ -246,30 +246,33 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
         </div>
       )}
 
-      {/* Micro-ato do Dia */}
-      <div className="mb-8">
-        <MicroAtosCard userId={userId} />
-      </div>
+      {/* Micro-ato e Conteúdo Educacional - Grid Layout em Desktop */}
+      <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 mb-6 sm:mb-8">
+        {/* Micro-ato do Dia */}
+        <div className="min-h-[300px]">
+          <MicroAtosCard userId={userId} />
+        </div>
 
-      {/* Conteúdo Educacional Recomendado */}
-      <div className="mb-8">
-        <RecommendedContentWidget userId={userId} />
+        {/* Conteúdo Educacional Recomendado */}
+        <div className="min-h-[300px]">
+          <RecommendedContentWidget userId={userId} />
+        </div>
       </div>
 
       {/* Link para Biblioteca */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex-1">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
               Explorar Biblioteca de Práticas
             </h3>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Descubra mais práticas organizadas por fase e categoria
             </p>
           </div>
           <button
             onClick={onOpenLibrary}
-            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-all"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-all whitespace-nowrap"
           >
             Ver Todas
             <ChevronRight size={20} />
