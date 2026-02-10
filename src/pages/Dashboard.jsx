@@ -5,10 +5,10 @@ export default function Dashboard() {
   const { profile } = useAuth()
 
   const stats = [
-    { label: 'Práticas Completas', value: '12', icon: Heart, color: 'purple' },
-    { label: 'Dias de Sequência', value: '7', icon: TrendingUp, color: 'amber' },
-    { label: 'Círculos Ativos', value: '3', icon: Users, color: 'blue' },
-    { label: 'Fase Atual', value: profile?.fase_atual || '1', icon: Calendar, color: 'green' },
+    { label: 'Práticas Completas', value: '12', icon: Heart, colorBg: 'bg-purple-100', colorText: 'text-purple-600' },
+    { label: 'Dias de Sequência', value: '7', icon: TrendingUp, colorBg: 'bg-amber-100', colorText: 'text-amber-600' },
+    { label: 'Círculos Ativos', value: '3', icon: Users, colorBg: 'bg-blue-100', colorText: 'text-blue-600' },
+    { label: 'Fase Atual', value: profile?.fase_atual || '1', icon: Calendar, colorBg: 'bg-green-100', colorText: 'text-green-600' },
   ]
 
   return (
@@ -27,8 +27,8 @@ export default function Dashboard() {
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 bg-${stat.color}-100 rounded-lg flex items-center justify-center`}>
-                <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
+              <div className={`w-12 h-12 ${stat.colorBg} rounded-lg flex items-center justify-center`}>
+                <stat.icon className={`w-6 h-6 ${stat.colorText}`} />
               </div>
             </div>
             <p className="text-2xl font-bold text-gray-900">{stat.value}</p>

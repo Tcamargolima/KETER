@@ -9,7 +9,8 @@ export default function Circles() {
       description: 'Grupo para praticar mindfulness todos os dias',
       members: 24,
       lastActivity: '2h atrás',
-      color: 'purple'
+      colorBg: 'bg-purple-100',
+      colorIcon: 'text-purple-600'
     },
     {
       id: 2,
@@ -17,7 +18,8 @@ export default function Circles() {
       description: 'Compartilhe sua jornada de desenvolvimento',
       members: 18,
       lastActivity: '1 dia atrás',
-      color: 'amber'
+      colorBg: 'bg-amber-100',
+      colorIcon: 'text-amber-600'
     },
     {
       id: 3,
@@ -25,7 +27,8 @@ export default function Circles() {
       description: 'Para praticantes com experiência',
       members: 12,
       lastActivity: '3h atrás',
-      color: 'blue'
+      colorBg: 'bg-blue-100',
+      colorIcon: 'text-blue-600'
     },
   ]
 
@@ -51,8 +54,8 @@ export default function Circles() {
             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex items-start gap-4">
-              <div className={`w-12 h-12 bg-${circle.color}-100 rounded-xl flex items-center justify-center flex-shrink-0`}>
-                <Users className={`w-6 h-6 text-${circle.color}-600`} />
+              <div className={`w-12 h-12 ${circle.colorBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                <Users className={`w-6 h-6 ${circle.colorIcon}`} />
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">
