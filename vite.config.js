@@ -1,9 +1,30 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
+import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Analisar bundle size
+    visualizer({
+      filename: './dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true
+    }),
+    // Comprimir assets com gzip
+    viteCompression({
+      algorithm: 'gzip',
+      ext: '.gz'
+    }),
+    // Comprimir assets com brotli
+    viteCompression({
+      algorithm: 'brotliCompress',
+      ext: '.br'
+    })
+  ],
   
   // Path aliases para imports mais limpos
   resolve: {
@@ -22,24 +43,35 @@ export default defineConfig({
 
   // Otimizações de build
   build: {
-    sourcemap: process.env.NODE_ENV === 'development',
+    sourcemap: 'hidden', // Gerar sourcemaps mas não expor ao usuário
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: ['log', 'debug'], // Remover apenas logs e debug, manter error e warn
+        drop_debugger: true
+      }
+    },
     rollupOptions: {
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'supabase': ['@supabase/supabase-js'],
           'openai': ['openai'],
-          'charts': ['recharts'],
+          'ui': ['lucide-react'],
+          'charts': ['recharts']
         }
       }
-    }
+    },
+    // Target ES2020 para melhor compatibilidade
+    target: 'es2020',
+    // Chunk size warnings
+    chunkSizeWarningLimit: 500
   },
 
   // Configuração de servidor de desenvolvimento
   server: {
     port: 5173,
-    host: true,
-    open: true
+    host: true
   },
 
   // Variáveis de ambiente

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import App from './App'
 import ErrorBoundary from './components/common/ErrorBoundary'
+import { reportWebVitals } from '@/lib/vitals'
 import '@/styles/index.css'
 
 // Initialize Sentry for error monitoring
@@ -33,6 +34,27 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   console.log('ℹ️ Sentry DSN not configured - error monitoring disabled')
 }
 
+// Registrar Service Worker
+const SW_UPDATE_INTERVAL = 1000 * 60 * 60 // 1 hora
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((registration) => {
+        console.log('✅ Service Worker registered:', registration)
+        
+        // Verificar atualizações a cada 1 hora
+        setInterval(() => {
+          registration.update()
+        }, SW_UPDATE_INTERVAL)
+      })
+      .catch((error) => {
+        console.error('❌ Service Worker registration failed:', error)
+      })
+  })
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
@@ -40,3 +62,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </React.StrictMode>
 )
+
+// Report Web Vitals in production
+if (import.meta.env.PROD) {
+  reportWebVitals()
+}
