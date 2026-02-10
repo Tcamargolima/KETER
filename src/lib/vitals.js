@@ -1,4 +1,4 @@
-import { onCLS, onFID, onFCP, onLCP, onTTFB } from 'web-vitals'
+import { onCLS, onINP, onFCP, onLCP, onTTFB } from 'web-vitals'
 
 function sendToAnalytics({ name, delta, value, id }) {
   // Enviar para seu analytics (Google Analytics, Plausible, etc)
@@ -17,7 +17,7 @@ function sendToAnalytics({ name, delta, value, id }) {
 
 export function reportWebVitals() {
   onCLS(sendToAnalytics)
-  onFID(sendToAnalytics)
+  onINP(sendToAnalytics)
   onFCP(sendToAnalytics)
   onLCP(sendToAnalytics)
   onTTFB(sendToAnalytics)

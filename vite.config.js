@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
-import { compression } from 'vite-plugin-compression'
+import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
   plugins: [
@@ -14,12 +14,13 @@ export default defineConfig({
       gzipSize: true,
       brotliSize: true
     }),
-    // Comprimir assets
-    compression({
+    // Comprimir assets com gzip
+    viteCompression({
       algorithm: 'gzip',
       ext: '.gz'
     }),
-    compression({
+    // Comprimir assets com brotli
+    viteCompression({
       algorithm: 'brotliCompress',
       ext: '.br'
     })
