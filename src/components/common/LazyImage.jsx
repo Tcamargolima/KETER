@@ -13,8 +13,9 @@ export default function LazyImage({
 
   useEffect(() => {
     let observer
+    const currentImg = imgRef.current
     
-    if (imgRef.current) {
+    if (currentImg) {
       observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -27,12 +28,12 @@ export default function LazyImage({
         { rootMargin: '50px' }
       )
       
-      observer.observe(imgRef.current)
+      observer.observe(currentImg)
     }
     
     return () => {
-      if (observer && imgRef.current) {
-        observer.unobserve(imgRef.current)
+      if (observer && currentImg) {
+        observer.unobserve(currentImg)
       }
     }
   }, [src])

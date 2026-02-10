@@ -1,6 +1,7 @@
-const CACHE_NAME = 'keter-v1.0.0'
-const STATIC_CACHE = 'keter-static-v1.0.0'
-const DYNAMIC_CACHE = 'keter-dynamic-v1.0.0'
+const VERSION = '1.0.0'
+const CACHE_NAME = `keter-v${VERSION}`
+const STATIC_CACHE = `keter-static-v${VERSION}`
+const DYNAMIC_CACHE = `keter-dynamic-v${VERSION}`
 
 // Arquivos para cachear imediatamente
 const STATIC_ASSETS = [
@@ -11,13 +12,21 @@ const STATIC_ASSETS = [
   '/icons/icon-512x512.svg'
 ]
 
+const IS_DEV = self.location.hostname === 'localhost'
+
+function log(...args) {
+  if (IS_DEV) {
+    console.log(...args)
+  }
+}
+
 // Instalar Service Worker
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker...')
+  log('[SW] Installing Service Worker...')
   
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
-      console.log('[SW] Caching static assets')
+      log('[SW] Caching static assets')
       return cache.addAll(STATIC_ASSETS)
     })
   )
@@ -27,7 +36,7 @@ self.addEventListener('install', (event) => {
 
 // Ativar Service Worker
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker...')
+  log('[SW] Activating Service Worker...')
   
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -35,7 +44,7 @@ self.addEventListener('activate', (event) => {
         keys
           .filter((key) => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
           .map((key) => {
-            console.log('[SW] Removing old cache:', key)
+            log('[SW] Removing old cache:', key)
             return caches.delete(key)
           })
       )

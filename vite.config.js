@@ -43,11 +43,11 @@ export default defineConfig({
 
   // Otimizações de build
   build: {
-    sourcemap: false, // Desabilitar em produção
+    sourcemap: 'hidden', // Gerar sourcemaps mas não expor ao usuário
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true, // Remover console.logs
+        drop_console: ['log', 'debug'], // Remover apenas logs e debug, manter error e warn
         drop_debugger: true
       }
     },

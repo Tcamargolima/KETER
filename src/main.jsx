@@ -35,6 +35,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 }
 
 // Registrar Service Worker
+const SW_UPDATE_INTERVAL = 1000 * 60 * 60 // 1 hora
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
@@ -45,7 +47,7 @@ if ('serviceWorker' in navigator) {
         // Verificar atualizações a cada 1 hora
         setInterval(() => {
           registration.update()
-        }, 1000 * 60 * 60)
+        }, SW_UPDATE_INTERVAL)
       })
       .catch((error) => {
         console.error('❌ Service Worker registration failed:', error)
