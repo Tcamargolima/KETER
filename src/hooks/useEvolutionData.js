@@ -52,11 +52,13 @@ export const useEvolutionData = (userId, daysRange = 90) => {
           .order('data', { ascending: true });
 
         if (reflexoesError) {
+          console.error('Erro ao carregar reflexões:', reflexoesError);
+          
           if (reflexoesError.code === 'PGRST116' || reflexoesError.message?.includes('relation') || reflexoesError.message?.includes('does not exist')) {
             console.error('❌ Tabela não encontrada: reflexoes. Erro:', reflexoesError.code, reflexoesError.message);
             console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
           }
-          throw reflexoesError;
+          // Don't throw, continue with empty data
         }
 
         // Carregar práticas completadas
@@ -69,11 +71,13 @@ export const useEvolutionData = (userId, daysRange = 90) => {
           .order('completed_at', { ascending: true });
 
         if (praticasError) {
+          console.error('Erro ao carregar práticas:', praticasError);
+          
           if (praticasError.code === 'PGRST116' || praticasError.message?.includes('relation') || praticasError.message?.includes('does not exist')) {
             console.error('❌ Tabela não encontrada: praticas_diarias ou praticas. Erro:', praticasError.code, praticasError.message);
             console.error('💡 Crie as tabelas no Supabase usando os arquivos supabase-schema.sql e database/migration-praticas-table.sql');
           }
-          throw praticasError;
+          // Don't throw, continue with empty data
         }
 
         // Carregar micro-atos
@@ -85,7 +89,15 @@ export const useEvolutionData = (userId, daysRange = 90) => {
           .gte('data', dataInicio)
           .order('data', { ascending: true });
 
-        if (microAtosError) throw microAtosError;
+        if (microAtosError) {
+          console.error('Erro ao carregar micro-atos:', microAtosError);
+          
+          if (microAtosError.code === 'PGRST116' || microAtosError.message?.includes('relation') || microAtosError.message?.includes('does not exist')) {
+            console.error('❌ Tabela não encontrada: micro_atos. Erro:', microAtosError.code, microAtosError.message);
+            console.error('💡 Crie a tabela "micro_atos" no Supabase usando o arquivo supabase-schema.sql');
+          }
+          // Don't throw, continue with empty data
+        }
 
         setReflexoes(reflexoesData || []);
         setPraticas(praticasData || []);

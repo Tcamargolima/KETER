@@ -54,6 +54,11 @@ export const useMicroAtos = (userId) => {
 
       if (keteroError) {
         console.error('Erro ao carregar fase do ketero:', keteroError);
+        
+        if (keteroError.code === 'PGRST116' || keteroError.message?.includes('relation') || keteroError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: keteros. Erro:', keteroError.code, keteroError.message);
+          console.error('💡 Crie a tabela "keteros" no Supabase usando o arquivo supabase-schema.sql');
+        }
         throw keteroError;
       }
       setFaseAtual(ketero?.fase_atual || 1);
@@ -66,7 +71,15 @@ export const useMicroAtos = (userId) => {
         .order('data', { ascending: false })
         .limit(30);
 
-      if (historicoError) throw historicoError;
+      if (historicoError) {
+        console.error('Erro ao carregar histórico de micro-atos:', historicoError);
+        
+        if (historicoError.code === 'PGRST116' || historicoError.message?.includes('relation') || historicoError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: micro_atos. Erro:', historicoError.code, historicoError.message);
+          console.error('💡 Crie a tabela "micro_atos" no Supabase usando o arquivo supabase-schema.sql');
+        }
+        throw historicoError;
+      }
       setHistorico(historicoData || []);
 
       // Verificar se já realizou micro-ato hoje
@@ -101,6 +114,11 @@ export const useMicroAtos = (userId) => {
 
       if (erroExistente && erroExistente.code !== 'PGRST116') {
         console.error('Erro ao buscar micro-ato existente:', erroExistente);
+        
+        if (erroExistente.message?.includes('relation') || erroExistente.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: micro_atos. Erro:', erroExistente.code, erroExistente.message);
+          console.error('💡 Crie a tabela "micro_atos" no Supabase usando o arquivo supabase-schema.sql');
+        }
         throw erroExistente;
       }
 
@@ -364,7 +382,15 @@ export const useMicroAtos = (userId) => {
         .order('executado_at', { ascending: false })
         .limit(limite);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao obter histórico:', error);
+        
+        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: micro_atos. Erro:', error.code, error.message);
+          console.error('💡 Crie a tabela "micro_atos" no Supabase usando o arquivo supabase-schema.sql');
+        }
+        throw error;
+      }
       return { data: data || [], error: null };
     } catch (err) {
       console.error('Erro ao obter histórico:', err);

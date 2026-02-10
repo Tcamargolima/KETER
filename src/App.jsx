@@ -6,6 +6,7 @@ import Perfil from './pages/Perfil';
 import Sabedoria from './pages/Sabedoria';
 import AuthPage from './pages/Auth';
 import { OfflineIndicator } from './components/features/OfflineIndicator';
+import DebugPanel from './components/debug/DebugPanel';
 import { useOffline } from './hooks/useOffline';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { useSession } from './hooks/useAuth';
@@ -53,6 +54,9 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-amber-50 to-purple-50">
         {/* Offline Indicator */}
         <OfflineIndicator isOffline={isOffline} isSyncing={isSyncing} />
+
+        {/* Debug Panel (Dev Mode Only) */}
+        <DebugPanel />
 
         {/* PWA Install Prompt */}
         {showInstallPrompt && (

@@ -31,12 +31,55 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
+  const signIn = async (email, password, maxRetries = 3) => {
+    let lastError = null;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (!error) {
+          return { data, error: null };
+        }
+        
+        // Handle specific error types
+        if (error.name === 'AuthApiError' && error.status === 400) {
+          // Invalid credentials or unconfirmed account - don't retry
+          return { 
+            data: null, 
+            error: {
+              ...error,
+              message: 'Email/senha incorretos ou conta não confirmada. Verifique sua caixa de entrada para confirmação.',
+              friendlyMessage: 'Email/senha incorretos ou conta não confirmada. Verifique sua caixa de entrada para confirmação.'
+            }
+          };
+        }
+        
+        // For other errors, store and potentially retry
+        lastError = error;
+        
+        // If temporary error and not last attempt, wait before retry
+        if (attempt < maxRetries) {
+          console.warn(`⚠️ Tentativa ${attempt}/${maxRetries} de login falhou. Tentando novamente...`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+        }
+        
+      } catch (err) {
+        lastError = err;
+        if (attempt === maxRetries) {
+          break;
+        }
+      }
+    }
+    
+    // All retries failed
+    return { 
+      data: null, 
+      error: lastError || new Error('Falha ao fazer login após várias tentativas')
+    };
   };
 
   const signUp = async (email, password) => {

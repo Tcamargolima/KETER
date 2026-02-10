@@ -38,21 +38,38 @@ export const useRecomendacaoConteudo = (userId) => {
       setErro(null);
 
       // 1. Buscar contexto do usuário
-      const { data: ketero } = await supabase
+      const { data: ketero, error: keteroError } = await supabase
         .from('keteros')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
+
+      if (keteroError) {
+        console.error('Erro ao buscar perfil do ketero:', keteroError);
+        
+        // Handle table not found
+        if (keteroError.code === 'PGRST116' || keteroError.message?.includes('relation') || keteroError.message?.includes('does not exist')) {
+          console.error('❌ Tabela não encontrada: keteros. Erro:', keteroError.code, keteroError.message);
+          console.error('💡 Crie a tabela "keteros" no Supabase usando o arquivo supabase-schema.sql');
+        }
+        throw keteroError;
+      }
+
+      if (!ketero) {
+        console.warn('⚠️ Perfil do usuário não encontrado. Usando valores padrão.');
+      }
 
       // 2. Buscar reflexões recentes (últimas 3)
       const { data: reflexoes, error: reflexoesError } = await supabase
         .from('reflexoes')
-        .select('sentimentos_dia, mudaria_algo')
+        .select('sentimentos_dia, mudaria_algo, humor_dia')
         .eq('ketero_id', userId)
         .order('data', { ascending: false })
         .limit(3);
 
       if (reflexoesError) {
+        console.error('Erro ao buscar reflexões:', reflexoesError);
+        
         if (reflexoesError.code === 'PGRST116' || reflexoesError.message?.includes('relation') || reflexoesError.message?.includes('does not exist')) {
           console.error('❌ Tabela não encontrada: reflexoes. Erro:', reflexoesError.code, reflexoesError.message);
           console.error('💡 Crie a tabela "reflexoes" no Supabase usando o arquivo database/schema-reflexoes-enhanced.sql');
@@ -141,11 +158,15 @@ Exemplo: "5, 12, 18 - O usuário está na fase Despertar e suas reflexões indic
 
       // Fallback: recomendar por regras simples
       try {
-        const { data: ketero } = await supabase
+        const { data: ketero, error: keteroError } = await supabase
           .from('keteros')
           .select('fase_atual')
           .eq('id', userId)
-          .single();
+          .maybeSingle();
+
+        if (keteroError) {
+          console.error('Erro ao buscar fase do ketero:', keteroError);
+        }
 
         const { data: todosConteudos, error: conteudosError } = await supabase
           .from('conteudo_educacional')
@@ -154,8 +175,11 @@ Exemplo: "5, 12, 18 - O usuário está na fase Despertar e suas reflexões indic
           .limit(20);
 
         if (conteudosError) {
+          console.error('Erro ao buscar conteúdo educacional:', conteudosError);
+          
           if (conteudosError.code === 'PGRST116' || conteudosError.message?.includes('relation') || conteudosError.message?.includes('does not exist')) {
             console.error('❌ Tabela não encontrada: conteudo_educacional. Erro:', conteudosError.code, conteudosError.message);
+            console.error('💡 Crie a tabela "conteudo_educacional" no Supabase usando o arquivo database/migrations/add-conteudo-educacional.sql');
           }
         }
 
