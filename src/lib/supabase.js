@@ -44,6 +44,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
  */
 export const signUp = async (email, password, nome) => {
   try {
+    // Constantes para retry
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 2000;
+
     // 1. Criar usuário no Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
@@ -62,7 +66,7 @@ export const signUp = async (email, password, nome) => {
       console.log('Tentando criar perfil para user:', authData.user.id);
 
       // Helper function: Retry insert para contornar problema de schema cache
-      const insertProfileWithRetry = async (profileData, maxRetries = 3) => {
+      const insertProfileWithRetry = async (profileData, maxRetries = MAX_RETRIES) => {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           const { error } = await supabase
             .from('keteros')
@@ -70,7 +74,7 @@ export const signUp = async (email, password, nome) => {
 
           if (!error) {
             console.log('✅ Perfil criado com sucesso na tentativa', attempt);
-            return { error: null };
+            return;
           }
 
           // Só fazer retry se for erro de schema cache (PGRST204)
@@ -83,29 +87,24 @@ export const signUp = async (email, password, nome) => {
           if (attempt < maxRetries) {
             console.warn(`⚠️ Tentativa ${attempt}/${maxRetries}: Schema cache stale (PGRST204). Tentando novamente em 2s...`);
             console.error('Detalhes do erro PGRST204:', error);
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
           }
         }
 
         // Se chegou aqui, todas as tentativas falharam
-        const finalError = new Error('Falha após múltiplas tentativas: schema cache não atualizado. Execute NOTIFY pgrst, \'reload schema\'; no Supabase SQL Editor ou reinicie o projeto no Dashboard.');
         console.error('❌ Falha após', maxRetries, 'tentativas. Schema cache não atualizado.');
-        console.error('💡 Solução: Execute NOTIFY pgrst, \'reload schema\'; no Supabase SQL Editor');
+        console.error('💡 Solução: Execute NOTIFY pgrst, "reload schema"; no Supabase SQL Editor');
         console.error('💡 Ou reinicie o projeto: Dashboard > Settings > General > Restart project');
-        return { error: finalError };
+        throw new Error('Falha após múltiplas tentativas: schema cache não atualizado. Execute NOTIFY pgrst, "reload schema"; no Supabase SQL Editor ou reinicie o projeto no Dashboard.');
       };
 
       // Executar insert com retry
-      const { error: profileError } = await insertProfileWithRetry({
+      await insertProfileWithRetry({
         id: authData.user.id,
         email: email,
         nome: nome,
         created_at: new Date().toISOString()
       });
-
-      if (profileError) {
-        throw profileError;
-      }
     }
 
     return { data: authData, error: null };
