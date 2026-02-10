@@ -1,6 +1,18 @@
+import { clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
 /**
  * Utility functions for KETER app
  */
+
+/**
+ * Combines class names with tailwind-merge to handle conflicts
+ * @param {...any} inputs - Class names to combine
+ * @returns {string} - Merged class names
+ */
+export function cn(...inputs) {
+  return twMerge(clsx(inputs))
+}
 
 /**
  * Validates if a string is a valid UUID (versions 1-5)
