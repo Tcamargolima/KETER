@@ -116,18 +116,20 @@ export const usePhaseProgress = () => {
       const totalConquistas = conquistasData?.length || 0;
 
       // Contar reflexões manualmente (já que campo não existe em keteros)
-      const { data: reflexoesData, error: reflexoesError } = await supabase
+      const { count: totalReflexoes, error: reflexoesError } = await supabase
         .from('reflexoes')
-        .select('id', { count: 'exact', head: true })
+        .select('*', { count: 'exact', head: true })
         .eq('ketero_id', user.id);
 
-      const totalReflexoes = reflexoesError ? 0 : (reflexoesData?.length || 0);
+      if (reflexoesError) {
+        console.error('Erro ao contar reflexões:', reflexoesError);
+      }
 
       // Atualizar progresso com defaults para valores ausentes
       setProgresso({
         dias: keteroData?.dia_na_fase || 0,
         praticas: keteroData?.total_praticas || 0,
-        reflexoes: totalReflexoes,
+        reflexoes: totalReflexoes || 0,
         streak: keteroData?.sequencia_atual || 0,
         conquistas: totalConquistas
       });
@@ -141,7 +143,7 @@ export const usePhaseProgress = () => {
         const pode = 
           (keteroData?.dia_na_fase || 0) >= criteriosFase.diasMinimos &&
           (keteroData?.total_praticas || 0) >= criteriosFase.praticasMinimas &&
-          totalReflexoes >= criteriosFase.reflexoesMinimas &&
+          (totalReflexoes || 0) >= criteriosFase.reflexoesMinimas &&
           (keteroData?.sequencia_maxima || 0) >= criteriosFase.streakMinimo &&
           totalConquistas >= criteriosFase.conquistasMinimas;
 

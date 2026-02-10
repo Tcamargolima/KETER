@@ -93,8 +93,8 @@ export const signUp = async (email, password, nome) => {
 
         // Se chegou aqui, todas as tentativas falharam
         console.error('❌ Falha após', maxRetries, 'tentativas. Schema cache não atualizado.');
-        console.error('💡 Solução: Vá ao Supabase Dashboard > Settings > Restart project, depois rode NOTIFY pgrst, \'reload schema\'; 5x no SQL Editor');
-        throw new Error('Cache do banco desatualizado. Vá ao Supabase Dashboard > Settings > Restart project, depois rode NOTIFY pgrst, \'reload schema\'; 5x no SQL Editor.');
+        console.error('💡 Solução: Vá ao Supabase Dashboard > Settings > Restart project, depois rode NOTIFY pgrst, \'reload schema\'; no SQL Editor');
+        throw new Error('Cache do banco desatualizado. Vá ao Supabase Dashboard > Settings > Restart project, depois rode NOTIFY pgrst, \'reload schema\'; no SQL Editor.');
       };
 
       // Executar insert com retry
