@@ -7,27 +7,51 @@ export default {
   theme: {
     extend: {
       colors: {
-        purple: {
-          primary: '#6B46C1',
-          50: '#f3e7ff',
-          100: '#e1ccff',
-          200: '#c199ff',
-          300: '#a066ff',
-          400: '#8033ff',
-          500: '#6B46C1',
-          600: '#5a3ba0',
-          700: '#482f80',
-          800: '#372360',
-          900: '#261740',
+        // Cores principais do KETER
+        primary: {
+          50: '#f0f4ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          300: '#a5b4fc',
+          400: '#818cf8',
+          500: '#6366f1', // Main primary
+          600: '#4f46e5',
+          700: '#4338ca',
+          800: '#3730a3',
+          900: '#312e81',
+          950: '#1e1b4b',
         },
-        amber: {
-          primary: '#F59E0B',
+        secondary: {
+          50: '#fdf4ff',
+          100: '#fae8ff',
+          200: '#f5d0fe',
+          300: '#f0abfc',
+          400: '#e879f9',
+          500: '#d946ef', // Main secondary
+          600: '#c026d3',
+          700: '#a21caf',
+          800: '#86198f',
+          900: '#701a75',
+          950: '#4a044e',
+        },
+        success: '#10b981',
+        warning: '#f59e0b',
+        error: '#ef4444',
+        background: {
+          light: '#ffffff',
+          dark: '#0f172a',
         }
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Poppins', 'system-ui', 'sans-serif'],
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-slow': 'bounce 2s infinite',
       }
     },
   },
   plugins: [],
+  darkMode: 'class', // Habilita dark mode com classe
 }

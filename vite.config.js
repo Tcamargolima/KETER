@@ -1,136 +1,11 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { VitePWA } from 'vite-plugin-pwa';
-import path from 'path';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      useCredentials: true,  // Força credentials no fetch do manifest
-      includeAssets: ['icon.svg', 'icons/*.png'],
-      manifest: {
-        name: 'KETER - Evolução Pessoal',
-        short_name: 'KETER',
-        description: 'Plataforma de evolução pessoal com IA',
-        theme_color: '#6B46C1',
-        background_color: '#ffffff',
-        display: 'standalone',
-        scope: '/',
-        start_url: '/',
-        orientation: 'portrait',
-        icons: [
-          {
-            src: '/icons/icon-192x192.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icons/icon-512x512.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
-          }
-        ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*$/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/api\.openai\.com\/.*$/,
-            handler: 'NetworkOnly',
-            options: {
-              cacheName: 'openai-api'
-            }
-          },
-          {
-            urlPattern: ({ request }) => request.destination === 'image',
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images-cache',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
-            }
-          },
-          {
-            urlPattern: ({ request }) => request.destination === 'font',
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              }
-            }
-          },
-          // Cache para conteúdo educacional (vídeos YouTube/Vimeo)
-          {
-            urlPattern: /^https:\/\/(www\.youtube\.com|player\.vimeo\.com)\/.*$/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'video-embeds-cache',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          // Cache para áudios (Supabase Storage ou outros)
-          {
-            urlPattern: ({ request }) => 
-              request.destination === 'audio' || 
-              request.url.includes('/audio/') ||
-              request.url.match(/\.(mp3|wav|ogg)$/),
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'audio-cache',
-              expiration: {
-                maxEntries: 30,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/]
-      },
-      devOptions: {
-        enabled: true,
-        type: 'module'
-      }
-    })
-  ],
+  plugins: [react()],
+  
+  // Path aliases para imports mais limpos
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -144,14 +19,31 @@ export default defineConfig({
       '@context': path.resolve(__dirname, './src/context'),
     }
   },
+
+  // Otimizações de build
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'supabase': ['@supabase/supabase-js'],
+          'openai': ['openai'],
+          'charts': ['recharts'],
+        }
+      }
+    }
+  },
+
+  // Configuração de servidor de desenvolvimento
   server: {
     port: 5173,
-    strictPort: false,
+    host: true,
     open: true
   },
-  build: {
-    outDir: 'dist',
-    sourcemap: false,
-    chunkSizeWarningLimit: 1500  // Aumenta o limite para silenciar warnings de bundle grande
+
+  // Variáveis de ambiente
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(process.env.npm_package_version)
   }
-});
+})
