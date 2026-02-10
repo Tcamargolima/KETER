@@ -5,6 +5,9 @@ import Input from '@/components/ui/Input'
 import Modal from '@/components/ui/Modal'
 import Badge from '@/components/ui/Badge'
 import { Heart, Settings, Mail } from 'lucide-react'
+import PracticeTimer from '@/components/features/practices/PracticeTimer'
+import PracticeCard from '@/components/features/practices/PracticeCard'
+import ChatInterface from '@/components/features/ai/ChatInterface'
 
 /**
  * Test page for UI components
@@ -204,6 +207,72 @@ export default function TestUI() {
               <Button className="flex-1">Save</Button>
             </div>
           </CardFooter>
+        </Card>
+
+        {/* Practice Timer Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Practice Timer</CardTitle>
+            <CardDescription>SVG-based animated timer component</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PracticeTimer 
+              durationInSeconds={60} 
+              onComplete={() => console.log('Timer completed!')} 
+            />
+          </CardContent>
+        </Card>
+
+        {/* Practice Card Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Practice Cards</CardTitle>
+            <CardDescription>Practice cards in compact and full mode</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-3">Compact Mode</p>
+                <PracticeCard 
+                  compact
+                  practice={{
+                    id: 1,
+                    fase: 1,
+                    dia: 1,
+                    titulo: 'Meditação Matinal',
+                    descricao: 'Comece o dia com consciência e presença.',
+                    duracao_minutos: 10,
+                    categoria: 'Mindfulness'
+                  }}
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-3">Full Mode</p>
+                <PracticeCard 
+                  practice={{
+                    id: 2,
+                    fase: 2,
+                    dia: 5,
+                    titulo: 'Gratidão Diária',
+                    descricao: 'Reflita sobre as bênçãos do dia e cultive gratidão.',
+                    duracao_minutos: 15,
+                    categoria: 'Reflexão'
+                  }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* AI Chat Interface Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>AI Chat Interface</CardTitle>
+            <CardDescription>Interactive chat with AI assistant</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChatInterface />
+          </CardContent>
         </Card>
       </div>
 
