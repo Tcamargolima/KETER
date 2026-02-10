@@ -26,7 +26,7 @@ export default function Modal({
   // Fechar com ESC
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape' && onClose) onClose()
     }
     if (open) {
       window.addEventListener('keydown', handleEsc)
@@ -77,6 +77,7 @@ export default function Modal({
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Close modal"
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
