@@ -14,7 +14,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('⚠️ App funcionará em modo offline limitado')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Use placeholder values if credentials are missing to prevent undefined errors
+const safeSupabaseUrl = supabaseUrl || 'https://placeholder.supabase.co'
+const safeSupabaseAnonKey = supabaseAnonKey || 'placeholder-key'
+
+export const supabase = createClient(safeSupabaseUrl, safeSupabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
