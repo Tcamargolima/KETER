@@ -85,8 +85,8 @@ export const MicroAtosCard = ({ userId, onComplete }) => {
 
   if (carregando) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-8">
-        <div className="animate-pulse">
+      <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 min-h-[300px] flex items-center justify-center">
+        <div className="animate-pulse w-full">
           <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
           <div className="h-4 bg-gray-200 rounded w-3/4"></div>
         </div>
@@ -100,7 +100,7 @@ export const MicroAtosCard = ({ userId, onComplete }) => {
 
   if (erro) {
     return (
-      <div className="bg-red-50 rounded-2xl shadow-lg p-8 border-2 border-red-200">
+      <div className="bg-red-50 rounded-2xl shadow-lg p-6 sm:p-8 border-2 border-red-200 min-h-[300px] flex items-center justify-center">
         <p className="text-red-600">Erro ao carregar micro-ato: {erro}</p>
       </div>
     );
@@ -112,7 +112,7 @@ export const MicroAtosCard = ({ userId, onComplete }) => {
 
   if (jaRealizouHoje) {
     return (
-      <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-xl p-8 text-white">
+      <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white min-h-[300px] flex flex-col justify-center">
         <div className="flex items-center gap-3 mb-4">
           <CheckCircle size={32} className="text-green-100" />
           <h3 className="text-2xl font-bold">Micro-ato Realizado! 🎉</h3>
@@ -136,7 +136,7 @@ export const MicroAtosCard = ({ userId, onComplete }) => {
 
   if (mostrarOpcoes) {
     return (
-      <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 min-h-[300px]">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold text-gray-900">Escolher Categoria</h3>
           <button
@@ -182,7 +182,7 @@ export const MicroAtosCard = ({ userId, onComplete }) => {
 
   if (mostrarCustom) {
     return (
-      <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 min-h-[300px]">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold text-gray-900">Criar Micro-ato</h3>
           <button
@@ -248,7 +248,7 @@ export const MicroAtosCard = ({ userId, onComplete }) => {
 
   if (mostrarConfirmacao) {
     return (
-      <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 min-h-[300px]">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold text-gray-900">Parabéns! 🎉</h3>
           <button
@@ -300,7 +300,7 @@ export const MicroAtosCard = ({ userId, onComplete }) => {
 
   return (
     <div
-      className="rounded-2xl shadow-xl p-8 text-white relative overflow-hidden"
+      className="rounded-2xl shadow-xl p-6 sm:p-8 text-white relative overflow-hidden min-h-[300px] flex flex-col justify-between"
       style={{
         background: categoriaAtual 
           ? `linear-gradient(135deg, ${categoriaAtual.cor} 0%, ${categoriaAtual.cor}dd 100%)`
