@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -130,6 +131,19 @@ export default defineConfig({
       }
     })
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@lib': path.resolve(__dirname, './src/lib'),
+      '@pages': path.resolve(__dirname, './src/pages'),
+      '@data': path.resolve(__dirname, './src/data'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@styles': path.resolve(__dirname, './src/styles'),
+      '@context': path.resolve(__dirname, './src/context'),
+    }
+  },
   server: {
     port: 5173,
     strictPort: false,
