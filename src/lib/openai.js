@@ -1,33 +1,35 @@
-// ================================================
-// OPENAI CLIENT & AI SERVICES
-// ================================================
-// src/lib/openai.js
+import OpenAI from 'openai'
 
-// ⚠️ SECURITY WARNING: OpenAI API key is exposed in browser
-// This is acceptable ONLY for development/prototyping
-// 
-// TODO FOR PRODUCTION:
-// 1. Move all OpenAI calls to Supabase Edge Functions
-// 2. Use environment variables on the server side only
-// 3. Implement rate limiting per user
-// 4. Add authentication checks
-// 
-// See docs/GUIA-INTEGRACAO-REFLEXOES.md for migration guide
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY
 
-import OpenAI from 'openai';
-
-// Configuração do OpenAI
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-
-// Validação de segurança para variáveis de ambiente
 if (!apiKey) {
-  console.warn('VITE_OPENAI_API_KEY não definida. Funcionalidades de IA estarão desabilitadas. Configure as variáveis de ambiente no .env ou nas configurações do Vercel.');
+  console.warn('⚠️ OpenAI API key is missing! AI features will be disabled')
 }
 
-const openai = apiKey ? new OpenAI({
-  apiKey: apiKey,
-  dangerouslyAllowBrowser: true // Remove this in production!
-}) : null;
+export const openai = apiKey ? new OpenAI({
+  apiKey,
+  dangerouslyAllowBrowser: true // Apenas para dev, mover para backend em produção
+}) : null
+
+// Helper para verificar se IA está disponível
+export const isAIAvailable = () => {
+  return openai !== null
+}
+
+// Wrapper seguro para chamadas de IA
+export const safeAICall = async (callback, fallback = null) => {
+  if (!openai) {
+    console.warn('AI is not available, using fallback')
+    return fallback
+  }
+  
+  try {
+    return await callback(openai)
+  } catch (error) {
+    console.error('AI call failed:', error)
+    return fallback
+  }
+}
 
 // ================================================
 // CONSTANTS
