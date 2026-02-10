@@ -26,6 +26,7 @@ const Circles = lazy(() => import('@/pages/Circles'))
 const CircleDetail = lazy(() => import('@/pages/CircleDetail'))
 const Profile = lazy(() => import('@/pages/Profile'))
 const Settings = lazy(() => import('@/pages/Settings'))
+const TestUI = lazy(() => import('@/pages/TestUI'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 // Wrapper para suspense
@@ -161,6 +162,14 @@ const router = createBrowserRouter([
         element: (
           <SuspenseWrapper>
             <Settings />
+          </SuspenseWrapper>
+        )
+      },
+      {
+        path: 'test-ui',
+        element: (
+          <SuspenseWrapper>
+            <TestUI />
           </SuspenseWrapper>
         )
       }
