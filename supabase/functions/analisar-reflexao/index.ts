@@ -52,20 +52,17 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    // Rate limiting: Check reflection count today
-    const hoje = new Date().toISOString().split('T')[0]
-    const { count, error: countError } = await supabase
-      .from('reflexoes')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .gte('created_at', `${hoje}T00:00:00`)
+    // Rate limiting: Check quota using database function
+    const { data: quotaCheck, error: quotaError } = await supabase.rpc(
+      'check_ai_quota',
+      { p_user_id: user.id, p_type: 'reflection' }
+    )
 
-    if (countError) {
-      console.error('Rate limit check error:', countError)
+    if (quotaError) {
+      console.error('Quota check error:', quotaError)
     }
 
-    // Allow up to 3 AI analyses per day
-    if (count && count >= 3) {
+    if (quotaCheck === false) {
       throw new Error('Daily AI analysis limit reached (3 per day). Try again tomorrow.')
     }
 
@@ -146,6 +143,22 @@ Mantenha tom encorajador mas honesto. Máximo 300 palavras.`
 
     // Log for monitoring
     console.log(`Reflection analysis completed for user ${user.id}, tokens: ${tokensUsados}`)
+
+    // Update quota usage in database
+    // Note: Pricing constant duplicated from chat-ia for simplicity
+    // Update both if OpenAI pricing changes
+    const costPerToken = 0.0015 / 1000 // GPT-3.5-turbo: $0.0015 per 1K tokens
+    const estimatedCost = tokensUsados * costPerToken
+    
+    await supabase.rpc('increment_ai_usage', {
+      p_user_id: user.id,
+      p_type: 'reflection',
+      p_tokens: tokensUsados,
+      p_cost: estimatedCost
+    }).catch(err => {
+      console.error('Failed to update quota:', err)
+      // Don't fail the request if quota update fails
+    })
 
     // Return result
     return new Response(

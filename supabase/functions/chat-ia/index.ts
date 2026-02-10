@@ -12,31 +12,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Simple in-memory rate limiter (per user)
-const rateLimiter = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(userId: string, maxRequests = 50): boolean {
-  const now = Date.now();
-  const dayStart = new Date().setHours(0, 0, 0, 0);
-  
-  const userLimit = rateLimiter.get(userId);
-  
-  // Reset if new day
-  if (!userLimit || userLimit.resetAt < dayStart) {
-    rateLimiter.set(userId, { count: 1, resetAt: dayStart + 24 * 60 * 60 * 1000 });
-    return true;
-  }
-  
-  // Check limit
-  if (userLimit.count >= maxRequests) {
-    return false;
-  }
-  
-  // Increment
-  userLimit.count++;
-  return true;
-}
-
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -77,8 +52,17 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    // Rate limiting: 50 messages per day per user
-    if (!checkRateLimit(user.id)) {
+    // Rate limiting: Check quota using database function
+    const { data: quotaCheck, error: quotaError } = await supabase.rpc(
+      'check_ai_quota',
+      { p_user_id: user.id, p_type: 'chat' }
+    )
+
+    if (quotaError) {
+      console.error('Quota check error:', quotaError)
+    }
+
+    if (quotaCheck === false) {
       throw new Error('Daily message limit reached (50 messages/day). Try again tomorrow.')
     }
 
@@ -152,6 +136,22 @@ ${contexto.padraoDetectado ? `- Padrão observado: ${contexto.padraoDetectado}` 
 
     // Log for monitoring
     console.log(`Chat completed for user ${user.id}, tokens: ${tokensUsados}`)
+
+    // Update quota usage in database
+    // Note: Pricing constant duplicated in analisar-reflexao for simplicity
+    // Update both if OpenAI pricing changes
+    const costPerToken = 0.0015 / 1000 // GPT-3.5-turbo: $0.0015 per 1K tokens
+    const estimatedCost = tokensUsados * costPerToken
+    
+    await supabase.rpc('increment_ai_usage', {
+      p_user_id: user.id,
+      p_type: 'chat',
+      p_tokens: tokensUsados,
+      p_cost: estimatedCost
+    }).catch(err => {
+      console.error('Failed to update quota:', err)
+      // Don't fail the request if quota update fails
+    })
 
     // Save conversation to database (optional - for history)
     try {
