@@ -247,7 +247,7 @@ const Home = ({ userId, onStartPratica, onOpenLibrary }) => {
       )}
 
       {/* Micro-ato e Conteúdo Educacional - Grid Layout em Desktop */}
-      <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 mb-6 sm:mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 sm:mb-8">
         {/* Micro-ato do Dia */}
         <div className="min-h-[300px]">
           <MicroAtosCard userId={userId} />

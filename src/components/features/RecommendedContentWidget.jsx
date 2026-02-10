@@ -54,7 +54,7 @@ const RecommendedContentWidget = ({ userId }) => {
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-3 sm:mb-4">
-        <Sparkles size={20} className="text-purple-600 flex-shrink-0" />
+        <Sparkles size={24} className="text-purple-600 flex-shrink-0" />
         <h3 className="text-lg sm:text-xl font-bold text-gray-900">
           Conteúdo Sugerido para Sua Fase
         </h3>
