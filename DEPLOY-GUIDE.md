@@ -1,5 +1,57 @@
 # 🚀 KETER - Guia de Deploy em Produção
 
+## 🎯 Quick Start - Início Rápido
+
+Se você quer começar rapidamente, siga estes passos:
+
+### 1. Configurar Ambiente Local
+
+```bash
+# 1. Clone o repositório (se ainda não fez)
+git clone https://github.com/Tcamargolima/KETER.git
+cd KETER
+
+# 2. Crie o arquivo .env.local
+cp .env.local.template .env.local
+
+# 3. Edite .env.local e configure suas credenciais:
+# - VITE_SUPABASE_URL (da sua conta Supabase)
+# - VITE_SUPABASE_ANON_KEY (da sua conta Supabase)
+# - VITE_OPENAI_API_KEY (opcional, da sua conta OpenAI)
+
+# 4. Instale as dependências
+npm install
+
+# 5. Execute em modo de desenvolvimento
+npm run dev
+
+# 6. Teste o build
+npm run build
+npm run preview
+```
+
+### 2. Deploy Rápido no Vercel
+
+1. Acesse [vercel.com](https://vercel.com) e faça login com GitHub
+2. Clique em "New Project" → Importe o repositório KETER
+3. Configure as variáveis de ambiente (mesmas do .env.local)
+4. Clique em "Deploy"
+5. Aguarde 2-5 minutos
+6. ✅ Seu app está no ar!
+
+### 3. Configurar Supabase
+
+1. Acesse [supabase.com](https://supabase.com) e crie um projeto
+2. Vá em SQL Editor
+3. Execute o arquivo `database/schema.sql` (copie e cole todo o conteúdo)
+4. Execute o arquivo `database/rls-policies-production.sql`
+5. Execute o arquivo `database/seed-praticas.sql` (opcional, para dados iniciais)
+6. Copie a URL e a chave ANON do projeto (Settings → API)
+
+**Modo Offline:** O app funciona com práticas fallback mesmo sem Supabase configurado!
+
+---
+
 ## 📋 Checklist Pré-Deploy
 
 Antes de iniciar o deploy, certifique-se de que:

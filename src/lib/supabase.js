@@ -9,10 +9,16 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase credentials are missing! Check your .env file')
+  console.error('❌ ERRO CRÍTICO: Variáveis do Supabase não configuradas!')
+  console.error('Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no .env.local')
+  console.warn('⚠️ App funcionará em modo offline limitado')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Use placeholder values if credentials are missing to prevent undefined errors
+const safeSupabaseUrl = supabaseUrl || 'https://placeholder.supabase.co'
+const safeSupabaseAnonKey = supabaseAnonKey || 'placeholder-key'
+
+export const supabase = createClient(safeSupabaseUrl, safeSupabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,

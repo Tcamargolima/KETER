@@ -10,6 +10,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { isValidUUID } from '../lib/utils';
+import { PRATICAS_FALLBACK } from '../data/praticas-fallback';
 
 export const usePraticas = (userId) => {
   const [praticas, setPraticas] = useState([]);
@@ -40,6 +41,11 @@ export const usePraticas = (userId) => {
         if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
           console.error('❌ Tabela não encontrada: praticas. Erro:', error.code, error.message);
           console.error('💡 Crie a tabela "praticas" no Supabase usando o arquivo database/migration-praticas-table.sql');
+          console.warn('⚠️ Usando práticas fallback (modo offline)');
+          setPraticas(PRATICAS_FALLBACK);
+          setPraticasFiltradas(PRATICAS_FALLBACK);
+          setCarregando(false);
+          return;
         }
         throw error;
       }
@@ -48,6 +54,9 @@ export const usePraticas = (userId) => {
       setPraticasFiltradas(data || []);
     } catch (err) {
       console.error('Erro ao carregar práticas:', err);
+      console.warn('⚠️ Usando práticas fallback (modo offline)');
+      setPraticas(PRATICAS_FALLBACK);
+      setPraticasFiltradas(PRATICAS_FALLBACK);
       setErro(err.message);
     } finally {
       setCarregando(false);
